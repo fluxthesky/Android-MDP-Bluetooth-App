@@ -1,11 +1,11 @@
 package com.example.joseph.androidmdp;
 
 import android.app.Activity;
-import android.app.ListActivity;
+import android.app.AlertDialog;
 import android.bluetooth.BluetoothAdapter;
 import android.bluetooth.BluetoothDevice;
 import android.content.BroadcastReceiver;
-import android.content.Context;
+import android.content.DialogInterface;
 import android.content.Intent;
 import android.os.Handler;
 import android.os.Looper;
@@ -13,12 +13,16 @@ import android.os.Message;
 import android.support.v7.app.AppCompatActivity;
 import android.os.Bundle;
 import android.view.KeyEvent;
+import android.view.Menu;
+import android.view.MenuInflater;
+import android.view.MenuItem;
 import android.view.View;
 import android.widget.EditText;
+import android.widget.ImageButton;
+import android.widget.LinearLayout;
 import android.widget.TextView;
 import android.widget.Toast;
 
-import java.util.ArrayList;
 import java.util.Set;
 
 public class MainActivity extends AppCompatActivity {
@@ -36,37 +40,56 @@ public class MainActivity extends AppCompatActivity {
         setContentView(R.layout.activity_main);
 
         TextView temp = (TextView) findViewById(R.id.chatBox);
-        final EditText sendBox = (EditText) findViewById(R.id.messageText);
+        ImageButton up = (ImageButton) findViewById(R.id.up);
+        ImageButton down = (ImageButton) findViewById(R.id.down);
+        ImageButton left = (ImageButton) findViewById(R.id.left);
+        ImageButton right = (ImageButton) findViewById(R.id.right);
 
         messageTextView = temp;
 
 
-        sendBox.setOnKeyListener(new View.OnKeyListener() {
+
+
+
+        //setupBluetooth();
+
+        up.setOnClickListener(new View.OnClickListener() {
             @Override
-            public boolean onKey(View v, int keyCode, KeyEvent event) {
-                if ((event.getAction() == KeyEvent.ACTION_DOWN) &&
-                        (keyCode == KeyEvent.KEYCODE_ENTER)) {
-                    // Perform action on key press
+            public void onClick(View v) {
 
+                if(service != null)
+                service.write(Constants.ACTION_FORWARD.getBytes());
 
-                    service.write(sendBox.getText().toString().getBytes());
+            }
+        });
+        down.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View v) {
 
-
-
-
-
-
-
-                    return true;
-                }
-                return false;
+                if(service != null)
+                service.write(Constants.ACTION_REVERSE.getBytes());
             }
         });
 
-        Intent i = new Intent(this, ListActivityBluetooth.class);
-        startActivityForResult(i,Constants.ACTIVITY_RESULTS);
+        left.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View v) {
+                if(service != null)
+                service.write(Constants.ACTION_ROATE_LEFT.getBytes());
 
-        //setupBluetooth();
+            }
+        });
+
+        right.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View v) {
+
+                if(service != null)
+                service.write(Constants.ACTION_ROATE_RIGHT.getBytes());
+
+            }
+        });
+
 
 
 
@@ -74,6 +97,73 @@ public class MainActivity extends AppCompatActivity {
 
 
     }
+    @Override
+    public boolean onCreateOptionsMenu(Menu menu) {
+        MenuInflater inflater = getMenuInflater();
+        inflater.inflate(R.menu.menu, menu);
+        return true;
+    }
+
+    @Override
+    public boolean onOptionsItemSelected(MenuItem item) {
+
+        switch(item.getItemId()){
+
+            case R.id.connect:
+                startSearchDeviceActivity();
+                break;
+
+
+            case R.id.manual_input:
+                manualInput();
+                break;
+
+
+            default:
+                return super.onOptionsItemSelected(item);
+
+        }
+
+        return super.onOptionsItemSelected(item);
+
+
+    }
+
+
+    private void manualInput(){
+
+
+
+        AlertDialog.Builder builder = new AlertDialog.Builder(this);
+        builder.setMessage("Input string")
+                .setTitle("Manual input");
+
+
+
+        final EditText input = new EditText(MainActivity.this);
+        LinearLayout.LayoutParams lp = new LinearLayout.LayoutParams(
+                LinearLayout.LayoutParams.MATCH_PARENT,
+                LinearLayout.LayoutParams.MATCH_PARENT);
+
+        builder.setView(input);
+        builder.setPositiveButton("Enter", new DialogInterface.OnClickListener() {
+            @Override
+            public void onClick(DialogInterface dialog, int which) {
+
+                service.write(input.getText().toString().getBytes());
+
+            }
+        });
+
+
+        AlertDialog dialog = builder.create();
+        dialog.show();
+
+
+
+    }
+
+
 
 
     @Override
@@ -101,6 +191,12 @@ public class MainActivity extends AppCompatActivity {
 
     }
 
+
+    private void startSearchDeviceActivity(){
+
+        Intent i = new Intent(this, ListActivityBluetooth.class);
+        startActivityForResult(i,Constants.ACTIVITY_RESULTS);
+    }
 
 
     private void showPairedDevices(){

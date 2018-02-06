@@ -106,7 +106,7 @@ public class ListActivityBluetooth extends ListActivity {
 
         this.registerReceiver(mReceiver, filter);
 
-
+        toast("Starting discovery");
         boolean status = mBluetoothAdapter.startDiscovery();
         Log.i("AndroidMDP", "starting discovery "  + status );
 
