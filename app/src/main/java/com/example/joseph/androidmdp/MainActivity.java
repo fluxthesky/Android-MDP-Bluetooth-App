@@ -12,6 +12,7 @@ import android.os.Looper;
 import android.os.Message;
 import android.support.v7.app.AppCompatActivity;
 import android.os.Bundle;
+import android.util.Log;
 import android.view.KeyEvent;
 import android.view.Menu;
 import android.view.MenuInflater;
@@ -33,6 +34,8 @@ public class MainActivity extends AppCompatActivity {
     Handler mHandler;
     BluetoothService service;
     TextView messageTextView;
+    Map mMap;
+    int data[][] = new int[20][15];
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -44,6 +47,26 @@ public class MainActivity extends AppCompatActivity {
         ImageButton down = (ImageButton) findViewById(R.id.down);
         ImageButton left = (ImageButton) findViewById(R.id.left);
         ImageButton right = (ImageButton) findViewById(R.id.right);
+        mMap = (Map) findViewById(R.id.map);
+
+
+        int[][] data = new int[20][15];
+
+        for(int i = 0; i < 20; i++){
+
+            for(int j = 0; j < 15; j++) {
+
+                data[i][j] = 0;
+
+            }
+
+        }
+
+        data[3][13] = 1;
+        data[3][14] = 1;
+
+        updateMap(data);
+
 
         messageTextView = temp;
 
@@ -97,6 +120,22 @@ public class MainActivity extends AppCompatActivity {
 
 
     }
+
+
+
+
+
+    public void updateMap(int[][] data){
+
+
+
+        mMap.updateMap(data);
+        mMap.invalidate();
+
+
+    }
+
+
     @Override
     public boolean onCreateOptionsMenu(Menu menu) {
         MenuInflater inflater = getMenuInflater();
@@ -191,6 +230,16 @@ public class MainActivity extends AppCompatActivity {
 
     }
 
+    private void setLocationData(int locationData){
+
+        int x = locationData/15;
+        int y = locationData%15;
+
+        data[x][y] = 1;
+
+
+    }
+
 
     private void startSearchDeviceActivity(){
 
@@ -252,13 +301,56 @@ public class MainActivity extends AppCompatActivity {
                 if(stuff.equals("NOTHING") != true)
                 toast(stuff);
 
-
                 byte[] bytes = msg.getData().getByteArray(Constants.SEND_TRANSMISSION);
 
                 if(bytes != null) {
-                    String s = new String(bytes);
-                    messageTextView.append(s);
+                   /* String s = new String(bytes);
+                    messageTextView.append(s);*/
+
+                   String s = new String(bytes);
+                   if(s.startsWith("update:")){
+
+
+                       s = s.substring(s.indexOf(":")+1, s.length());
+                        Log.i("AndroidMDP" , s);
+
+                       while(true) {
+
+                           int locationOfComma = s.indexOf(",");
+                           String location = "";
+
+                           if(locationOfComma != -1) {
+                               location = s.substring(0, locationOfComma);
+                               s=s.substring(locationOfComma+1,s.length());
+                               setLocationData(Integer.valueOf(location));
+
+
+                           }
+
+
+
+
+                           Log.i("AndroidMDP" , location);
+
+                           if(locationOfComma == -1){
+                               break;
+                           }
+
+                       }
+
+                       updateMap(data);
+                       mMap.invalidate();
+
+
+                   }
+
+
+
+
                 }
+
+
+
 
             }
         };
