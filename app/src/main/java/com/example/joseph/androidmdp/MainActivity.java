@@ -7,6 +7,7 @@ import android.bluetooth.BluetoothDevice;
 import android.content.BroadcastReceiver;
 import android.content.DialogInterface;
 import android.content.Intent;
+import android.graphics.Color;
 import android.os.Handler;
 import android.os.Looper;
 import android.os.Message;
@@ -18,15 +19,23 @@ import android.view.Menu;
 import android.view.MenuInflater;
 import android.view.MenuItem;
 import android.view.View;
+import android.view.ViewGroup;
+import android.widget.Button;
 import android.widget.EditText;
+import android.widget.GridLayout;
 import android.widget.ImageButton;
 import android.widget.LinearLayout;
 import android.widget.TextView;
 import android.widget.Toast;
 
+import java.io.UnsupportedEncodingException;
 import java.util.Set;
 
+import static android.view.ViewGroup.LayoutParams.WRAP_CONTENT;
+
 public class MainActivity extends AppCompatActivity {
+
+
 
     BluetoothAdapter mBluetoothAdapter;
     BroadcastReceiver mReceiver;
@@ -36,6 +45,11 @@ public class MainActivity extends AppCompatActivity {
     TextView messageTextView;
     Map mMap;
     int data[][] = new int[20][15];
+    ImageButton grids[];
+    GridLayout mapLayout;
+    int robotLocation = 168;
+
+
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -48,6 +62,33 @@ public class MainActivity extends AppCompatActivity {
         ImageButton left = (ImageButton) findViewById(R.id.left);
         ImageButton right = (ImageButton) findViewById(R.id.right);
         mMap = (Map) findViewById(R.id.map);
+        mapLayout = (GridLayout) findViewById(R.id.map_grid);
+
+        Rectangle rect = new Rectangle(this);
+        grids = new ImageButton[300];
+
+        for(int i = 0 ; i < 300 ; i++){
+
+            final ImageButton btn = new ImageButton(this);
+            btn.setLayoutParams(new ViewGroup.LayoutParams(
+                    ViewGroup.LayoutParams.WRAP_CONTENT,
+                    ViewGroup.LayoutParams.WRAP_CONTENT));
+
+
+
+            final int k = i;
+            btn.setOnClickListener(new View.OnClickListener() {
+                @Override
+                public void onClick(View v) {
+
+                    btn.setBackgroundColor(Color.rgb(000, 255, 000));
+
+                }
+            });
+            grids[i] = btn;
+            mapLayout.addView(grids[i]);
+
+        }
 
 
         int[][] data = new int[20][15];
@@ -72,7 +113,8 @@ public class MainActivity extends AppCompatActivity {
 
 
 
-
+    deviceAddress = Constants.HARDWARE_ADDRESS;
+    setupBluetooth();
 
         //setupBluetooth();
 
@@ -80,8 +122,13 @@ public class MainActivity extends AppCompatActivity {
             @Override
             public void onClick(View v) {
 
+
+                updateRobotLocation(robotLocation - 15);
+                robotLocation -= 15;
+
+                /*
                 if(service != null)
-                service.write(Constants.ACTION_FORWARD.getBytes());
+                service.write(Constants.ACTION_FORWARD.getBytes());*/
 
             }
         });
@@ -89,16 +136,23 @@ public class MainActivity extends AppCompatActivity {
             @Override
             public void onClick(View v) {
 
-                if(service != null)
-                service.write(Constants.ACTION_REVERSE.getBytes());
+                updateRobotLocation(robotLocation + 15);
+                robotLocation += 15;
+              /*  if(service != null)
+                service.write(Constants.ACTION_REVERSE.getBytes());*/
             }
         });
 
         left.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
-                if(service != null)
-                service.write(Constants.ACTION_ROATE_LEFT.getBytes());
+
+                updateRobotLocation(robotLocation - 1);
+                robotLocation -= 1;
+
+
+               /* if(service != null)
+                service.write(Constants.ACTION_ROATE_LEFT.getBytes());*/
 
             }
         });
@@ -106,9 +160,13 @@ public class MainActivity extends AppCompatActivity {
         right.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
+                updateRobotLocation(robotLocation + 1);
+                robotLocation += 1;
 
-                if(service != null)
-                service.write(Constants.ACTION_ROATE_RIGHT.getBytes());
+
+
+              /*  if(service != null)
+                service.write(Constants.ACTION_ROATE_RIGHT.getBytes());*/
 
             }
         });
@@ -121,6 +179,39 @@ public class MainActivity extends AppCompatActivity {
 
     }
 
+
+
+
+    public void updateRobotLocation(int i){
+
+        int center = i;
+        int north = i - 15;
+        int south = i + 15;
+        int east = i + 1;
+        int west = i - 1;
+        int northwest = north - 1;
+        int northeast = north + 1;
+        int southwest = south - 1;
+        int southeast = south + 1;
+
+
+        grids[center].setBackgroundColor(Color.GREEN);
+        grids[north].setBackgroundColor(Color.rgb(000, 255, 000));
+        grids[south].setBackgroundColor(Color.rgb(000, 255, 000));
+        grids[east].setBackgroundColor(Color.rgb(000, 255, 000));
+        grids[west].setBackgroundColor(Color.rgb(000, 255, 000));
+        grids[northwest].setBackgroundColor(Color.rgb(0, 0, 0));
+        grids[northeast].setBackgroundColor(Color.rgb(0, 0, 0));
+        grids[southwest].setBackgroundColor(Color.rgb(0, 0, 0));
+        grids[southeast].setBackgroundColor(Color.rgb(0, 0, 0));
+
+
+
+
+
+
+
+    }
 
 
 
@@ -241,6 +332,69 @@ public class MainActivity extends AppCompatActivity {
     }
 
 
+    private void setLocationDataHex(String hex){
+        String binary = "";
+
+
+      /*  long hexa = Long.parseLong(hex , 16);
+        String binary = Long.toBinaryString(hexa); */
+        /*int n = 512 - binary.length();*/
+
+
+
+        for(int i = 0 ; i < hex.length() ; i++){
+
+            char c = hex.charAt(i);
+
+
+
+            long hexlong = Long.parseLong(String.valueOf(c) , 16);
+            binary = binary + Long.toBinaryString(hexlong);
+
+
+        }
+
+        int n = 512 - binary.length();
+
+
+        for(int i = 0 ; i < n ; i++){
+
+
+            binary = "0" + binary;
+
+        }
+
+        binary = binary.substring(211,binary.length()-1);
+
+
+        for (int i = 0 ; i < binary.length() ; i++){
+
+            char c = binary.charAt(i);
+            if(c == '1'){
+
+                setLocationData(i);
+                grids[i].setBackgroundColor(Color.rgb(000, 255, 000));
+
+
+            }
+
+        }
+
+
+        updateMap(data);
+        mMap.invalidate();
+
+
+
+
+
+    }
+
+
+
+
+
+
     private void startSearchDeviceActivity(){
 
         Intent i = new Intent(this, ListActivityBluetooth.class);
@@ -264,6 +418,7 @@ public class MainActivity extends AppCompatActivity {
     private void setupBluetooth(){
 
 
+        //ask if bluetooth is enabled
        mBluetoothAdapter = BluetoothAdapter.getDefaultAdapter();
         if (!mBluetoothAdapter.isEnabled()) {
             Intent enableBtIntent = new Intent(BluetoothAdapter.ACTION_REQUEST_ENABLE);
@@ -284,12 +439,17 @@ public class MainActivity extends AppCompatActivity {
         };*/
 
 
+
+        //make device discoverable
         Intent discoverableIntent =
                 new Intent(BluetoothAdapter.ACTION_REQUEST_DISCOVERABLE);
         discoverableIntent.putExtra(BluetoothAdapter.EXTRA_DISCOVERABLE_DURATION, 300);
         startActivity(discoverableIntent);
 
 
+
+
+        // receiving message from connected bluetooth device
         Handler mHandler = new Handler(Looper.getMainLooper()){
 
             @Override
@@ -304,11 +464,16 @@ public class MainActivity extends AppCompatActivity {
                 byte[] bytes = msg.getData().getByteArray(Constants.SEND_TRANSMISSION);
 
                 if(bytes != null) {
-                   /* String s = new String(bytes);
-                    messageTextView.append(s);*/
+                    String ss = null;
+                    try {
+                        ss = new String(bytes , "ISO-8859-1");
+                    } catch (UnsupportedEncodingException e) {
+                        e.printStackTrace();
+                    }
+                    messageTextView.append(ss);
 
                    String s = new String(bytes);
-                   if(s.startsWith("update:")){
+                   if(s.startsWith("#update:")){
 
 
                        s = s.substring(s.indexOf(":")+1, s.length());
@@ -324,6 +489,8 @@ public class MainActivity extends AppCompatActivity {
                                s=s.substring(locationOfComma+1,s.length());
                                setLocationData(Integer.valueOf(location));
 
+
+                               grids[Integer.valueOf(location)].setBackgroundColor(Color.rgb(000, 255, 000));
 
                            }
 
@@ -344,6 +511,17 @@ public class MainActivity extends AppCompatActivity {
 
                    }
 
+                    if(s.startsWith("#mass:")){
+
+                       s = s.substring(s.indexOf(":")+1, s.length());
+                       s = s.substring(0 , s.indexOf("/") );
+
+                        setLocationDataHex(s);
+
+
+
+                    }
+
 
 
 
@@ -357,6 +535,8 @@ public class MainActivity extends AppCompatActivity {
 
 
 
+
+        //starts the bluetooth
         service = new BluetoothService(this,mHandler,mBluetoothAdapter , deviceAddress);
         service.startThreads();
 
