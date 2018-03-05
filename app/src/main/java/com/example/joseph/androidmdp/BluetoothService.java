@@ -130,7 +130,6 @@ public class BluetoothService {
                     bun.putString("Stuff", "Connected on listen");
                     msg.setData(bun);
                     handler.sendMessage(msg);
-
                     startConnectedThread(socket);
 
 
