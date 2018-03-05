@@ -14,6 +14,10 @@ public class Constants {
     public static final String ACTION_ROATE_RIGHT = "tr";
     public static final String ACTION_REVERSE = "r";
     public static final String HARDWARE_ADDRESS = "B8:27:EB:CD:16:89";
+    public static final int NORTH = 1;
+    public static final int SOUTH = 2;
+    public static final int EAST = 3;
+    public static final int WEST = 4;
 
 
 }

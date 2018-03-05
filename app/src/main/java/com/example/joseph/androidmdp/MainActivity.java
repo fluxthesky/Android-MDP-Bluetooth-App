@@ -14,6 +14,7 @@ import android.os.Message;
 import android.support.v7.app.AppCompatActivity;
 import android.os.Bundle;
 import android.util.Log;
+import android.view.Gravity;
 import android.view.KeyEvent;
 import android.view.Menu;
 import android.view.MenuInflater;
@@ -23,7 +24,9 @@ import android.view.ViewGroup;
 import android.widget.Button;
 import android.widget.EditText;
 import android.widget.GridLayout;
+import android.widget.GridView;
 import android.widget.ImageButton;
+import android.widget.ImageView;
 import android.widget.LinearLayout;
 import android.widget.TextView;
 import android.widget.Toast;
@@ -45,8 +48,8 @@ public class MainActivity extends AppCompatActivity {
     TextView messageTextView;
     Map mMap;
     int data[][] = new int[20][15];
-    ImageButton grids[];
-    GridLayout mapLayout;
+    ImageView grids[];
+    android.support.v7.widget.GridLayout mapLayout;
     int robotLocation = 168;
 
 
@@ -62,33 +65,11 @@ public class MainActivity extends AppCompatActivity {
         ImageButton left = (ImageButton) findViewById(R.id.left);
         ImageButton right = (ImageButton) findViewById(R.id.right);
         mMap = (Map) findViewById(R.id.map);
-        mapLayout = (GridLayout) findViewById(R.id.map_grid);
+        mapLayout = (android.support.v7.widget.GridLayout) findViewById(R.id.map_grid);
 
         Rectangle rect = new Rectangle(this);
-        grids = new ImageButton[300];
+        grids = new ImageView[300];
 
-        for(int i = 0 ; i < 300 ; i++){
-
-            final ImageButton btn = new ImageButton(this);
-            btn.setLayoutParams(new ViewGroup.LayoutParams(
-                    ViewGroup.LayoutParams.WRAP_CONTENT,
-                    ViewGroup.LayoutParams.WRAP_CONTENT));
-
-
-
-            final int k = i;
-            btn.setOnClickListener(new View.OnClickListener() {
-                @Override
-                public void onClick(View v) {
-
-                    btn.setBackgroundColor(Color.rgb(000, 255, 000));
-
-                }
-            });
-            grids[i] = btn;
-            mapLayout.addView(grids[i]);
-
-        }
 
 
         int[][] data = new int[20][15];
@@ -109,12 +90,57 @@ public class MainActivity extends AppCompatActivity {
         updateMap(data);
 
 
+
+        for(int i = 0 ; i < 300 ; i++){
+
+            final ImageView btn = new ImageView(this);
+
+
+
+
+            final int k = i;
+            btn.setOnClickListener(new View.OnClickListener() {
+                @Override
+                public void onClick(View v) {
+
+                    btn.setBackgroundColor(Color.rgb(000, 255, 000));
+
+                }
+            });
+            grids[i] = btn;
+            grids[i].setBackgroundColor(Color.WHITE);
+            grids[i].setImageResource(R.drawable.square_cell);
+
+            GridLayout.LayoutParams params =
+                    new GridLayout.LayoutParams();
+
+            params.setGravity(Gravity.FILL);
+
+
+            //nexus 7
+            params.height = 45;
+            params.width = 53;
+
+
+            // v20
+           // params.height = 70;
+         //   params.width = 60;
+
+            grids[i].setLayoutParams(params);
+
+            mapLayout.addView(grids[i]);
+
+
+        }
+
+
+
         messageTextView = temp;
 
 
 
     deviceAddress = Constants.HARDWARE_ADDRESS;
-    setupBluetooth();
+   // setupBluetooth();
 
         //setupBluetooth();
 
@@ -123,7 +149,7 @@ public class MainActivity extends AppCompatActivity {
             public void onClick(View v) {
 
 
-                updateRobotLocation(robotLocation - 15);
+                updateRobotLocation(robotLocation - 15 , Constants.NORTH);
                 robotLocation -= 15;
 
                 /*
@@ -136,7 +162,7 @@ public class MainActivity extends AppCompatActivity {
             @Override
             public void onClick(View v) {
 
-                updateRobotLocation(robotLocation + 15);
+                updateRobotLocation(robotLocation + 15 , Constants.SOUTH);
                 robotLocation += 15;
               /*  if(service != null)
                 service.write(Constants.ACTION_REVERSE.getBytes());*/
@@ -147,7 +173,7 @@ public class MainActivity extends AppCompatActivity {
             @Override
             public void onClick(View v) {
 
-                updateRobotLocation(robotLocation - 1);
+                updateRobotLocation(robotLocation - 1, Constants.WEST);
                 robotLocation -= 1;
 
 
@@ -160,7 +186,7 @@ public class MainActivity extends AppCompatActivity {
         right.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
-                updateRobotLocation(robotLocation + 1);
+                updateRobotLocation(robotLocation + 1 , Constants.EAST);
                 robotLocation += 1;
 
 
@@ -180,9 +206,19 @@ public class MainActivity extends AppCompatActivity {
     }
 
 
+    @Override
+    protected void onStart() {
 
 
-    public void updateRobotLocation(int i){
+
+
+
+
+
+        super.onStart();
+    }
+
+    public void updateRobotLocation(int i , int direction){
 
         int center = i;
         int north = i - 15;
@@ -193,6 +229,9 @@ public class MainActivity extends AppCompatActivity {
         int northeast = north + 1;
         int southwest = south - 1;
         int southeast = south + 1;
+
+
+        int x = 0 , y  = 0 , z = 0;
 
 
         grids[center].setBackgroundColor(Color.GREEN);
@@ -206,6 +245,47 @@ public class MainActivity extends AppCompatActivity {
         grids[southeast].setBackgroundColor(Color.rgb(0, 0, 0));
 
 
+
+
+
+
+        switch(direction){
+
+
+            case Constants.NORTH:
+                y = center + 30;
+                x =y - 1;
+                z = y + 1;
+                break;
+
+            case Constants.SOUTH:
+                y = center - 30;
+                x = y - 1;
+                z = y + 1;
+                break;
+
+            case Constants.EAST:
+                y = center - 2;
+                x = y + 15;
+                z = y - 15;
+                break;
+
+            case Constants.WEST:
+                y = center + 2;
+                x = y + 15;
+                z = y - 15;
+                break;
+
+
+
+
+
+
+
+        }
+        grids[y].setBackgroundColor(Color.WHITE);
+        grids[x].setBackgroundColor(Color.WHITE);
+        grids[z].setBackgroundColor(Color.WHITE);
 
 
 
@@ -382,7 +462,6 @@ public class MainActivity extends AppCompatActivity {
 
 
         updateMap(data);
-        mMap.invalidate();
 
 
 
