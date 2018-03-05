@@ -52,7 +52,8 @@ public class MainActivity extends AppCompatActivity {
     ImageView grids[];
     android.support.v7.widget.GridLayout mapLayout;
     int robotLocation = 168;
-
+    int head = robotLocation - 15;
+    int robotDirection = Constants.NORTH;
 
 
     @Override
@@ -124,8 +125,8 @@ public class MainActivity extends AppCompatActivity {
 
 
             // v20
-           // params.height = 70;
-         //   params.width = 60;
+           params.height = 70;
+           params.width = 60;
 
             grids[i].setLayoutParams(params);
 
@@ -150,7 +151,8 @@ public class MainActivity extends AppCompatActivity {
             public void onClick(View v) {
 
 
-                updateRobotLocation(robotLocation - 15 , Constants.NORTH);
+                moveForward();
+                drawRobot();
                 robotLocation -= 15;
 
                 /*
@@ -174,7 +176,8 @@ public class MainActivity extends AppCompatActivity {
             @Override
             public void onClick(View v) {
 
-                updateRobotLocation(robotLocation - 1, Constants.WEST);
+                turnLeft();
+                drawRobot();
                 robotLocation -= 1;
 
 
@@ -218,6 +221,58 @@ public class MainActivity extends AppCompatActivity {
 
         super.onStart();
     }
+
+
+
+    public void moveForward(){
+
+        robotLocation = robotLocation - 15;
+        head += 15;
+
+    }
+
+
+    public void drawRobot(){
+
+
+        int center = robotLocation;
+        int north = center - 15;
+        int south = center + 15;
+        int east = center + 1;
+        int west = center - 1;
+        int northwest = north - 1;
+        int northeast = north + 1;
+        int southwest = south - 1;
+        int southeast = south + 1;
+
+
+
+        grids[center].setBackgroundColor(Color.GREEN);
+        grids[north].setBackgroundColor(Color.rgb(000, 255, 000));
+        grids[south].setBackgroundColor(Color.rgb(000, 255, 000));
+        grids[east].setBackgroundColor(Color.rgb(000, 255, 000));
+        grids[west].setBackgroundColor(Color.rgb(000, 255, 000));
+        grids[northwest].setBackgroundColor(Color.rgb(0, 0, 0));
+        grids[northeast].setBackgroundColor(Color.rgb(0, 0, 0));
+        grids[southwest].setBackgroundColor(Color.rgb(0, 0, 0));
+        grids[southeast].setBackgroundColor(Color.rgb(0, 0, 0));
+        grids[head].setBackgroundColor(Color.BLUE);
+
+
+
+    }
+
+
+
+
+
+
+
+
+
+
+
+
 
     public void updateRobotLocation(int i , int direction){
 
@@ -476,11 +531,48 @@ public class MainActivity extends AppCompatActivity {
 
 
 
-    private void faceNorth(){
+    private void turnLeft(){
 
-        
+
+        switch(robotDirection){
+
+            case Constants.NORTH:
+                head = head + 14;
+                robotDirection = Constants.WEST;
+
+                break;
+
+            case Constants.SOUTH:
+                head = head - 14;
+                robotDirection = Constants.EAST;
+
+                break;
+
+            case Constants.EAST:
+                head = head - 16;
+                robotDirection = Constants.NORTH;
+
+                break;
+
+            case Constants.WEST:
+                head = head + 16;
+                robotDirection = Constants.SOUTH;
+
+                break;
+
+
+
+
+
+
+        }
+
+
+
 
     }
+
+
 
 
 
