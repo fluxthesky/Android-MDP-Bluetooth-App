@@ -476,6 +476,12 @@ public class MainActivity extends AppCompatActivity {
 
 
 
+    private void faceNorth(){
+
+        
+
+    }
+
 
 
     private void startSearchDeviceActivity(){
