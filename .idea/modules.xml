@@ -2,9 +2,11 @@
 <project version="4">
   <component name="ProjectModuleManager">
     <modules>
+      <module fileurl="file://$PROJECT_DIR$/Android-MDP-Bluetooth-App.iml" filepath="$PROJECT_DIR$/Android-MDP-Bluetooth-App.iml" />
       <module fileurl="file://C:\Users\Johnathan\Desktop\School\Sem 2.2\MDP\Android-MDP-Bluetooth-App-master\Android-MDP-Bluetooth-App.iml" filepath="C:\Users\Johnathan\Desktop\School\Sem 2.2\MDP\Android-MDP-Bluetooth-App-master\Android-MDP-Bluetooth-App.iml" />
-      <module fileurl="file://$PROJECT_DIR$/Android-MDP-Bluetooth-App-master.iml" filepath="$PROJECT_DIR$/Android-MDP-Bluetooth-App-master.iml" />
+      <module fileurl="file://C:\Users\Johnathan\Desktop\School\Sem 2.2\MDP\Android-MDP-Bluetooth-App\Android-MDP-Bluetooth-App-master.iml" filepath="C:\Users\Johnathan\Desktop\School\Sem 2.2\MDP\Android-MDP-Bluetooth-App\Android-MDP-Bluetooth-App-master.iml" />
       <module fileurl="file://$PROJECT_DIR$/app/app.iml" filepath="$PROJECT_DIR$/app/app.iml" />
+      <module fileurl="file://C:\Users\Johnathan\Desktop\School\Sem 2.2\MDP\Android-MDP-Bluetooth-App\app\app.iml" filepath="C:\Users\Johnathan\Desktop\School\Sem 2.2\MDP\Android-MDP-Bluetooth-App\app\app.iml" />
       <module fileurl="file://C:\Users\Johnathan\Desktop\School\Sem 2.2\MDP\Android-MDP-Bluetooth-App-master\app\app.iml" filepath="C:\Users\Johnathan\Desktop\School\Sem 2.2\MDP\Android-MDP-Bluetooth-App-master\app\app.iml" />
     </modules>
   </component>
