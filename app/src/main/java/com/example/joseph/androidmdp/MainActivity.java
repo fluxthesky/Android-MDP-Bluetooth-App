@@ -53,6 +53,8 @@ public class MainActivity extends AppCompatActivity {
     android.support.v7.widget.GridLayout mapLayout;
     int robotLocation = 168;
 
+    TextView curStatus;
+
 
 
     @Override
@@ -71,7 +73,7 @@ public class MainActivity extends AppCompatActivity {
         Rectangle rect = new Rectangle(this);
         grids = new ImageView[300];
 
-
+       curStatus = (TextView)findViewById(R.id.curStatus);
 
         int[][] data = new int[20][15];
 
@@ -299,12 +301,8 @@ public class MainActivity extends AppCompatActivity {
 
     public void updateMap(int[][] data){
 
-
-
         mMap.updateMap(data);
         mMap.invalidate();
-
-
     }
 
 
@@ -419,27 +417,13 @@ public class MainActivity extends AppCompatActivity {
     private void setLocationDataHex(String hex){
         String binary = "";
 
-
-      /*  long hexa = Long.parseLong(hex , 16);
-        String binary = Long.toBinaryString(hexa); */
-        /*int n = 512 - binary.length();*/
-
-
-
         for(int i = 0 ; i < hex.length() ; i++){
-
             char c = hex.charAt(i);
-
-
-
             long hexlong = Long.parseLong(String.valueOf(c) , 16);
             binary = binary + Long.toBinaryString(hexlong);
-
-
         }
 
         int n = 512 - binary.length();
-
 
         for(int i = 0 ; i < n ; i++){
 
@@ -458,31 +442,10 @@ public class MainActivity extends AppCompatActivity {
 
                 setLocationData(i);
                 grids[i].setBackgroundColor(Color.rgb(000, 255, 000));
-
-
             }
-
         }
-
-
         updateMap(data);
-
-
-
-
-
     }
-
-
-
-
-    private void faceNorth(){
-
-        
-
-    }
-
-
 
     private void startSearchDeviceActivity(){
 
@@ -513,19 +476,6 @@ public class MainActivity extends AppCompatActivity {
             Intent enableBtIntent = new Intent(BluetoothAdapter.ACTION_REQUEST_ENABLE);
             startActivityForResult(enableBtIntent, 1);
         }
-/*
-          mReceiver = new BroadcastReceiver() {
-            public void onReceive(Context context, Intent intent) {
-                String action = intent.getAction();
-                if (BluetoothDevice.ACTION_FOUND.equals(action)) {
-                    // Discovery has found a device. Get the BluetoothDevice
-                    // object and its info from the Intent.
-                    BluetoothDevice device = intent.getParcelableExtra(BluetoothDevice.EXTRA_DEVICE);
-                    String deviceName = device.getName();
-                    String deviceHardwareAddress = device.getAddress(); // MAC address
-                }
-            }
-        };*/
 
 
 
@@ -599,26 +549,20 @@ public class MainActivity extends AppCompatActivity {
 
 
                    }
-
                     if(s.startsWith("#mass:")){
 
                        s = s.substring(s.indexOf(":")+1, s.length());
                        s = s.substring(0 , s.indexOf("/") );
 
                         setLocationDataHex(s);
-
-
-
                     }
+                    if(s.startsWith("#status:")){
+                        s = s.substring(s.indexOf(":")+1, s.length());
+                        s = s.substring(0, s.indexOf("/"));
 
-
-
-
+                        setRobotStatus(s);
+                    }
                 }
-
-
-
-
             }
         };
 
@@ -635,7 +579,31 @@ public class MainActivity extends AppCompatActivity {
 
     }
 
+    private void setRobotStatus(String s) {
+        switch(s){
+            case "exploring":
+                curStatus.setText("Exploring");
+                break;
+            case "fastest path:":
+                curStatus.setText("Exploring Fastest Path");
+                break;
+            case "turning left":
+                curStatus.setText("Turning Left");
+                break;
+            case "turning right":
+                curStatus.setText("Turning Right");
+                break;
+            case "moving forward":
+                curStatus.setText("Moving Forward");
+                break;
+            case "reversing":
+                curStatus.setText("Reversing");
+                break;
+            default:
+                curStatus.setText("None");
 
+        }
+    }
 
 
     private void toast(String stuff){

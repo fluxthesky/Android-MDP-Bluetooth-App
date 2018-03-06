@@ -125,9 +125,25 @@
                     android:layout_centerVertical="true"
                     android:visibility="invisible" />
 
+        <TextView
+            android:id="@+id/statusText"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:layout_alignParentStart="true"
+            android:layout_below="@+id/map_grid"
+            android:text="Status:"
+            android:textColor="@android:color/black"
+            android:textSize="18sp" />
 
-
-
+        <TextView
+            android:id="@+id/curStatus"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:layout_below="@+id/map_grid"
+            android:layout_toEndOf="@+id/statusText"
+            android:text="None"
+            android:textColor="@android:color/black"
+            android:textSize="18sp" />
 
 
     </RelativeLayout>
