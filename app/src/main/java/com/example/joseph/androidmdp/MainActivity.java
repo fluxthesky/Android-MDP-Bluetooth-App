@@ -98,24 +98,18 @@ public class MainActivity extends AppCompatActivity {
 
             final ImageView btn = new ImageView(this);
 
-
-
-
             final int k = i;
             btn.setOnClickListener(new View.OnClickListener() {
                 @Override
                 public void onClick(View v) {
-
                     btn.setBackgroundColor(Color.rgb(000, 255, 000));
-
                 }
             });
             grids[i] = btn;
             grids[i].setBackgroundColor(Color.WHITE);
             grids[i].setImageResource(R.drawable.square_cell);
 
-            GridLayout.LayoutParams params =
-                    new GridLayout.LayoutParams();
+            GridLayout.LayoutParams params = new GridLayout.LayoutParams();
 
             params.setGravity(Gravity.FILL);
 
@@ -126,31 +120,23 @@ public class MainActivity extends AppCompatActivity {
 
 
             // v20
-           params.height = 70;
-           params.width = 60;
+           //params.height = 70;
+           //params.width = 60;
 
             grids[i].setLayoutParams(params);
 
             mapLayout.addView(grids[i]);
-
-
         }
-
-
 
         messageTextView = temp;
 
-
-
-    deviceAddress = Constants.HARDWARE_ADDRESS;
-   // setupBluetooth();
+        deviceAddress = Constants.HARDWARE_ADDRESS;
 
         //setupBluetooth();
 
         up.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
-
 
                 moveForward();
                 drawRobot();
@@ -181,7 +167,6 @@ public class MainActivity extends AppCompatActivity {
                 drawRobot();
                 robotLocation -= 1;
 
-
                /* if(service != null)
                 service.write(Constants.ACTION_ROATE_LEFT.getBytes());*/
 
@@ -194,32 +179,15 @@ public class MainActivity extends AppCompatActivity {
                 updateRobotLocation(robotLocation + 1 , Constants.EAST);
                 robotLocation += 1;
 
-
-
               /*  if(service != null)
                 service.write(Constants.ACTION_ROATE_RIGHT.getBytes());*/
-
             }
         });
-
-
-
-
-
-
-
     }
 
 
     @Override
     protected void onStart() {
-
-
-
-
-
-
-
         super.onStart();
     }
 
@@ -235,7 +203,6 @@ public class MainActivity extends AppCompatActivity {
 
     public void drawRobot(){
 
-
         int center = robotLocation;
         int north = center - 15;
         int south = center + 15;
@@ -245,8 +212,6 @@ public class MainActivity extends AppCompatActivity {
         int northeast = north + 1;
         int southwest = south - 1;
         int southeast = south + 1;
-
-
 
         grids[center].setBackgroundColor(Color.GREEN);
         grids[north].setBackgroundColor(Color.rgb(000, 255, 000));
@@ -258,22 +223,7 @@ public class MainActivity extends AppCompatActivity {
         grids[southwest].setBackgroundColor(Color.rgb(0, 0, 0));
         grids[southeast].setBackgroundColor(Color.rgb(0, 0, 0));
         grids[head].setBackgroundColor(Color.BLUE);
-
-
-
     }
-
-
-
-
-
-
-
-
-
-
-
-
 
     public void updateRobotLocation(int i , int direction){
 
@@ -287,9 +237,7 @@ public class MainActivity extends AppCompatActivity {
         int southwest = south - 1;
         int southeast = south + 1;
 
-
         int x = 0 , y  = 0 , z = 0;
-
 
         grids[center].setBackgroundColor(Color.GREEN);
         grids[north].setBackgroundColor(Color.rgb(000, 255, 000));
@@ -301,14 +249,7 @@ public class MainActivity extends AppCompatActivity {
         grids[southwest].setBackgroundColor(Color.rgb(0, 0, 0));
         grids[southeast].setBackgroundColor(Color.rgb(0, 0, 0));
 
-
-
-
-
-
         switch(direction){
-
-
             case Constants.NORTH:
                 y = center + 30;
                 x =y - 1;
@@ -332,29 +273,13 @@ public class MainActivity extends AppCompatActivity {
                 x = y + 15;
                 z = y - 15;
                 break;
-
-
-
-
-
-
-
         }
         grids[y].setBackgroundColor(Color.WHITE);
         grids[x].setBackgroundColor(Color.WHITE);
         grids[z].setBackgroundColor(Color.WHITE);
-
-
-
-
-
     }
 
-
-
-
     public void updateMap(int[][] data){
-
         mMap.updateMap(data);
         mMap.invalidate();
     }
@@ -369,18 +294,14 @@ public class MainActivity extends AppCompatActivity {
 
     @Override
     public boolean onOptionsItemSelected(MenuItem item) {
-
         switch(item.getItemId()){
-
             case R.id.connect:
                 startSearchDeviceActivity();
                 break;
 
-
             case R.id.manual_input:
                 manualInput();
                 break;
-
 
             default:
                 return super.onOptionsItemSelected(item);
@@ -393,8 +314,6 @@ public class MainActivity extends AppCompatActivity {
     }
 
     private void manualInput(){
-
-
 
         AlertDialog.Builder builder = new AlertDialog.Builder(this);
         builder.setMessage("Send string")
@@ -425,8 +344,6 @@ public class MainActivity extends AppCompatActivity {
         AlertDialog dialog = builder.create();
         dialog.show();
 
-
-
     }
 
 
@@ -439,18 +356,14 @@ public class MainActivity extends AppCompatActivity {
         if (requestCode == Constants.ACTIVITY_RESULTS) {
             if(resultCode == Activity.RESULT_OK){
                 String result=data.getStringExtra(Constants.DEVICE_ADDRESS);
-
                 deviceAddress = result;
                 setupBluetooth();
-
             }
             if (resultCode == Activity.RESULT_CANCELED) {
                 //Write your code if there's no result
 
                 deviceAddress = "1";
                 setupBluetooth();
-
-
             }
         }
 
@@ -463,7 +376,6 @@ public class MainActivity extends AppCompatActivity {
         int y = locationData%15;
 
         data[x][y] = 1;
-
 
     }
 
@@ -481,19 +393,16 @@ public class MainActivity extends AppCompatActivity {
 
         for(int i = 0 ; i < n ; i++){
 
-
             binary = "0" + binary;
 
         }
 
         binary = binary.substring(211,binary.length()-1);
 
-
         for (int i = 0 ; i < binary.length() ; i++){
 
             char c = binary.charAt(i);
             if(c == '1'){
-
                 setLocationData(i);
                 grids[i].setBackgroundColor(Color.rgb(000, 255, 000));
             }
@@ -503,37 +412,26 @@ public class MainActivity extends AppCompatActivity {
 
     private void turnLeft(){
 
-
         switch(robotDirection){
-
             case Constants.NORTH:
                 head = head + 14;
                 robotDirection = Constants.WEST;
-
                 break;
 
             case Constants.SOUTH:
                 head = head - 14;
                 robotDirection = Constants.EAST;
-
                 break;
 
             case Constants.EAST:
                 head = head - 16;
                 robotDirection = Constants.NORTH;
-
                 break;
 
             case Constants.WEST:
                 head = head + 16;
                 robotDirection = Constants.SOUTH;
-
                 break;
-
-
-
-
-
 
         }
 
@@ -588,8 +486,6 @@ public class MainActivity extends AppCompatActivity {
             @Override
             public void handleMessage(Message msg) {
 
-
-
                 String stuff = msg.getData().getString("Stuff" , "NOTHING");
                 if(stuff.equals("NOTHING") != true)
                 toast(stuff);
@@ -608,12 +504,10 @@ public class MainActivity extends AppCompatActivity {
                    String s = new String(bytes);
                    if(s.startsWith("#update:")){
 
-
                        s = s.substring(s.indexOf(":")+1, s.length());
                         Log.i("AndroidMDP" , s);
 
                        while(true) {
-
                            int locationOfComma = s.indexOf(",");
                            String location = "";
 
@@ -621,27 +515,17 @@ public class MainActivity extends AppCompatActivity {
                                location = s.substring(0, locationOfComma);
                                s=s.substring(locationOfComma+1,s.length());
                                setLocationData(Integer.valueOf(location));
-
-
                                grids[Integer.valueOf(location)].setBackgroundColor(Color.rgb(000, 255, 000));
 
                            }
-
-
-
-
                            Log.i("AndroidMDP" , location);
 
                            if(locationOfComma == -1){
                                break;
                            }
-
                        }
-
                        updateMap(data);
                        mMap.invalidate();
-
-
                    }
                     if(s.startsWith("#mass:")){
 
@@ -653,24 +537,16 @@ public class MainActivity extends AppCompatActivity {
                     if(s.startsWith("#status:")){
                         s = s.substring(s.indexOf(":")+1, s.length());
                         s = s.substring(0, s.indexOf("/"));
-
+                        s = s.toLowerCase();
                         setRobotStatus(s);
                     }
                 }
             }
         };
 
-
-
-
         //starts the bluetooth
         service = new BluetoothService(this,mHandler,mBluetoothAdapter , deviceAddress);
         service.startThreads();
-
-
-
-
-
     }
 
     private void setRobotStatus(String s) {
@@ -695,15 +571,12 @@ public class MainActivity extends AppCompatActivity {
                 break;
             default:
                 curStatus.setText("None");
-
         }
     }
 
 
     private void toast(String stuff){
-
         Toast.makeText(this, stuff ,Toast.LENGTH_SHORT).show();
-
     }
 
     private void storeString(String mString){
@@ -718,5 +591,4 @@ public class MainActivity extends AppCompatActivity {
         String mSavedString = mSharedPreferences.getString("mString","Old String");
         return mSavedString;
     }
-
 }
