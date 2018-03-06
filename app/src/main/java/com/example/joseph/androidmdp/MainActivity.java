@@ -57,6 +57,8 @@ public class MainActivity extends AppCompatActivity {
     TextView curStatus;
     int head = robotLocation - 15;
     int robotDirection = Constants.NORTH;
+    int oldRobotLocation = -1;
+    int MDF[] = new int[300];
 
     boolean autoUpdate = false;
 
@@ -99,38 +101,8 @@ public class MainActivity extends AppCompatActivity {
 
         updateMap(data);
 
-        for(int i = 0 ; i < 300 ; i++){
+        setupMap();
 
-            final ImageView btn = new ImageView(this);
-
-            final int k = i;
-            btn.setOnClickListener(new View.OnClickListener() {
-                @Override
-                public void onClick(View v) {
-                    btn.setBackgroundColor(Color.rgb(000, 255, 000));
-                }
-            });
-            grids[i] = btn;
-            grids[i].setBackgroundColor(Color.WHITE);
-            grids[i].setImageResource(R.drawable.square_cell);
-
-            GridLayout.LayoutParams params = new GridLayout.LayoutParams();
-
-            params.setGravity(Gravity.FILL);
-
-
-            //nexus 7
-            params.height = 45;
-            params.width = 53;
-
-            // v20
-            //params.height = 70;
-            //params.width = 60;
-
-            grids[i].setLayoutParams(params);
-
-            mapLayout.addView(grids[i]);
-        }
 
         initializeAutoUpdate();
 
@@ -144,13 +116,31 @@ public class MainActivity extends AppCompatActivity {
             @Override
             public void onClick(View v) {
 
-                moveForward();
+              /*  moveForward();
                 drawRobot();
-                robotLocation -= 15;
+                robotLocation -= 15;*/
+              oldRobotLocation = robotLocation;
 
-                /*
+                switch (robotDirection){
+
+                    case Constants.NORTH:
+                        robotLocation-=15;
+                        break;
+                    case Constants.SOUTH:
+                        robotLocation+=15;
+                        break;
+                    case Constants.EAST:
+                        robotLocation+=1;
+                        break;
+                    case Constants.WEST:
+                        robotLocation-=1;
+                        break;
+
+
+                }
+              drawRobot();
                 if(service != null)
-                service.write(Constants.ACTION_FORWARD.getBytes());*/
+                service.write(Constants.ACTION_FORWARD.getBytes());
 
             }
         });
@@ -158,10 +148,10 @@ public class MainActivity extends AppCompatActivity {
             @Override
             public void onClick(View v) {
 
-                updateRobotLocation(robotLocation + 15 , Constants.SOUTH);
-                robotLocation += 15;
-              /*  if(service != null)
-                service.write(Constants.ACTION_REVERSE.getBytes());*/
+                /*updateRobotLocation(robotLocation + 15 , Constants.SOUTH);
+                robotLocation += 15; */
+               if(service != null)
+                service.write(Constants.ACTION_REVERSE.getBytes());
             }
         });
 
@@ -169,12 +159,32 @@ public class MainActivity extends AppCompatActivity {
             @Override
             public void onClick(View v) {
 
-                turnLeft();
+              /*  turnLeft();
                 drawRobot();
-                robotLocation -= 1;
+                robotLocation -= 1;*/
 
-               /* if(service != null)
-                service.write(Constants.ACTION_ROATE_LEFT.getBytes());*/
+              switch (robotDirection){
+
+                  case Constants.NORTH:
+                       robotDirection = Constants.WEST;
+                       break;
+                  case Constants.SOUTH:
+                      robotDirection = Constants.EAST;
+                      break;
+                  case Constants.EAST:
+                      robotDirection = Constants.NORTH;
+                      break;
+                  case Constants.WEST:
+                      robotDirection = Constants.SOUTH;
+                      break;
+
+
+              }
+              drawRobot();
+
+
+               if(service != null)
+                service.write(Constants.ACTION_ROATE_LEFT.getBytes());
 
             }
         });
@@ -182,11 +192,31 @@ public class MainActivity extends AppCompatActivity {
         right.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
-                updateRobotLocation(robotLocation + 1 , Constants.EAST);
+               /* updateRobotLocation(robotLocation + 1 , Constants.EAST);
                 robotLocation += 1;
 
-              /*  if(service != null)
-                service.write(Constants.ACTION_ROATE_RIGHT.getBytes());*/
+*/
+
+                switch (robotDirection){
+
+                    case Constants.NORTH:
+                        robotDirection = Constants.EAST;
+                        break;
+                    case Constants.SOUTH:
+                        robotDirection = Constants.WEST;
+                        break;
+                    case Constants.EAST:
+                        robotDirection = Constants.SOUTH;
+                        break;
+                    case Constants.WEST:
+                        robotDirection = Constants.NORTH;
+                        break;
+
+
+                }
+                drawRobot();
+                if(service != null)
+                service.write(Constants.ACTION_ROATE_RIGHT.getBytes());
             }
         });
     }
@@ -247,15 +277,146 @@ public class MainActivity extends AppCompatActivity {
 
 
 
+    public void setupMap(){
+
+
+        for(int i = 0 ; i < 300 ; i++){
+
+        final ImageView btn = new ImageView(this);
+
+        final int k = i;
+        btn.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View v) {
+                btn.setBackgroundColor(Color.rgb(000, 000, 000));
+            }
+        });
+        grids[i] = btn;
+        grids[i].setBackgroundColor(Color.WHITE);
+        grids[i].setImageResource(R.drawable.square_cell);
+
+        GridLayout.LayoutParams params = new GridLayout.LayoutParams();
+
+        params.setGravity(Gravity.FILL);
+
+
+        //nexus 7
+        //params.height = 45;
+        //params.width = 53;
+
+        // v20
+        params.height = 80;
+        params.width = 88;
+
+        grids[i].setLayoutParams(params);
+
+        mapLayout.addView(grids[i]);
+    }
+
+
+        grids[14].setBackgroundColor(Color.GRAY);
+        grids[13].setBackgroundColor(Color.GRAY);
+        grids[12].setBackgroundColor(Color.GRAY);
+        grids[29].setBackgroundColor(Color.GRAY);
+        grids[28].setBackgroundColor(Color.GRAY);
+        grids[27].setBackgroundColor(Color.GRAY);
+        grids[44].setBackgroundColor(Color.GRAY);
+        grids[43].setBackgroundColor(Color.GRAY);
+        grids[42].setBackgroundColor(Color.GRAY);
+
+        grids[285].setBackgroundColor(Color.GRAY);
+        grids[286].setBackgroundColor(Color.GRAY);
+        grids[287].setBackgroundColor(Color.GRAY);
+        grids[270].setBackgroundColor(Color.GRAY);
+        grids[271].setBackgroundColor(Color.GRAY);
+        grids[272].setBackgroundColor(Color.GRAY);
+        grids[255].setBackgroundColor(Color.GRAY);
+        grids[256].setBackgroundColor(Color.GRAY);
+        grids[257].setBackgroundColor(Color.GRAY);
+
+        robotDirection = Constants.NORTH;
+        oldRobotLocation = 144;
+        robotLocation = 144;
+        drawRobot();
+
+    }
+
+    public void updateRobot(String s){
+
+
+        if(oldRobotLocation == -1){
+
+            robotLocation = Integer.valueOf(s.substring(0,s.indexOf(",")));
+            oldRobotLocation = robotLocation;
+
+
+        }
+
+        else {
+            oldRobotLocation = robotLocation;
+            robotLocation = Integer.valueOf(s.substring(0, s.indexOf(",")));
+         }
+    robotDirection = Integer.valueOf(s.substring(s.indexOf(",")+1));
+    drawRobot();
+
+
+
+
+
+    }
+
+
+
+
+
+
+
     public void moveForward(){
 
-        robotLocation = robotLocation - 15;
-        head += 15;
+
+        switch (robotDirection){
+
+            case Constants.NORTH:
+
+
+
+
+
+
+        }
+
+
+
 
     }
 
 
     public void drawRobot(){
+
+
+
+        Log.i("AndroidMDP" , "old is " + String.valueOf(oldRobotLocation) + " new is " + String.valueOf(robotLocation));
+
+
+        int oldCenter = oldRobotLocation;
+        int oldNorth = oldCenter - 15;
+        int oldSouth = oldCenter + 15;
+        int oldEast = oldCenter + 1;
+        int oldWest = oldCenter - 1;
+        int oldNorthwest = oldNorth - 1;
+        int oldNortheast = oldNorth + 1;
+        int oldSouthwest = oldSouth - 1;
+        int oldSoutheast = oldSouth + 1;
+
+        grids[oldCenter].setBackgroundColor(Color.RED);
+        grids[oldNorth].setBackgroundColor(Color.RED);
+        grids[oldSouth].setBackgroundColor(Color.RED);
+        grids[oldEast].setBackgroundColor(Color.RED);
+        grids[oldWest].setBackgroundColor(Color.RED);
+        grids[oldNorthwest].setBackgroundColor(Color.RED);
+        grids[oldNortheast].setBackgroundColor(Color.RED);
+        grids[oldSouthwest].setBackgroundColor(Color.RED);
+        grids[oldSoutheast].setBackgroundColor(Color.RED);
 
         int center = robotLocation;
         int north = center - 15;
@@ -267,6 +428,7 @@ public class MainActivity extends AppCompatActivity {
         int southwest = south - 1;
         int southeast = south + 1;
 
+        //draw the robot
         grids[center].setBackgroundColor(Color.GREEN);
         grids[north].setBackgroundColor(Color.rgb(000, 255, 000));
         grids[south].setBackgroundColor(Color.rgb(000, 255, 000));
@@ -276,7 +438,55 @@ public class MainActivity extends AppCompatActivity {
         grids[northeast].setBackgroundColor(Color.rgb(0, 0, 0));
         grids[southwest].setBackgroundColor(Color.rgb(0, 0, 0));
         grids[southeast].setBackgroundColor(Color.rgb(0, 0, 0));
-        grids[head].setBackgroundColor(Color.BLUE);
+
+        //draw the head
+
+        switch (robotDirection){
+
+            case Constants.NORTH:
+                grids[center -15 ].setBackgroundColor(Color.BLUE);
+               /* if(oldRobotLocation != robotLocation){
+
+                    grids[oldRobotLocation+14].setBackgroundColor(Color.RED);
+                    grids[oldRobotLocation+15].setBackgroundColor(Color.RED);
+                    grids[oldRobotLocation+16].setBackgroundColor(Color.RED);
+
+                }*/
+                break;
+            case Constants.SOUTH:
+                grids[center+15].setBackgroundColor(Color.BLUE);
+               /* if(oldRobotLocation != robotLocation){
+
+                    grids[oldRobotLocation-14].setBackgroundColor(Color.RED);
+                    grids[oldRobotLocation-15].setBackgroundColor(Color.RED);
+                    grids[oldRobotLocation-16].setBackgroundColor(Color.RED);
+
+                }*/
+                break;
+            case Constants.EAST:
+                grids[center+1].setBackgroundColor(Color.BLUE);
+              /*  if(oldRobotLocation != robotLocation){
+
+                    grids[oldRobotLocation-1].setBackgroundColor(Color.RED);
+                    grids[oldRobotLocation-16].setBackgroundColor(Color.RED);
+                    grids[oldRobotLocation+14].setBackgroundColor(Color.RED);
+
+                }*/
+                break;
+            case Constants.WEST:
+                grids[center-1].setBackgroundColor(Color.BLUE);
+              /*  if(oldRobotLocation != robotLocation){
+
+                    grids[oldRobotLocation+1].setBackgroundColor(Color.RED);
+                    grids[oldRobotLocation-14].setBackgroundColor(Color.RED);
+                    grids[oldRobotLocation+15].setBackgroundColor(Color.RED);
+
+                }*/
+                break;
+
+        }
+
+
     }
 
     public void updateRobotLocation(int i , int direction){
@@ -454,9 +664,19 @@ public class MainActivity extends AppCompatActivity {
             char c = binary.charAt(i);
             if(c == '1'){
                 setLocationData(i);
-                grids[i].setBackgroundColor(Color.rgb(000, 255, 000));
+                MDF[i] = 1;
+                grids[i].setBackgroundColor(Color.BLACK);
+            }
+
+            else{
+
+                MDF[i] = 0;
+
+
+
             }
         }
+
         updateMap(data);
     }
 
@@ -484,6 +704,7 @@ public class MainActivity extends AppCompatActivity {
                 break;
         }
     }
+
 
     private void startSearchDeviceActivity(){
         Intent i = new Intent(this, ListActivityBluetooth.class);
@@ -569,6 +790,7 @@ public class MainActivity extends AppCompatActivity {
                         s = s.substring(s.indexOf(":")+1, s.length());
                         s = s.substring(0 , s.indexOf("/") );
                         currentLocation = s;
+                        setLocationDataHex(s);
                     }
 
                     if(s.startsWith("#status:")){
@@ -577,6 +799,12 @@ public class MainActivity extends AppCompatActivity {
                         s = s.toLowerCase();
                         currentStatus = s;
                     }
+                    if(s.startsWith("#robotlocation:")){
+                        s = s.substring(s.indexOf(":")+1, s.length()-1);
+                        s = s.substring(0 , s.indexOf("/") );
+                        updateRobot(s);
+                    }
+
                 }
             }
         };
