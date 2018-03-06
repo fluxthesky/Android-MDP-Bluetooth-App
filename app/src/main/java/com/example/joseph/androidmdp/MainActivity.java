@@ -73,7 +73,7 @@ public class MainActivity extends AppCompatActivity {
         Rectangle rect = new Rectangle(this);
         grids = new ImageView[300];
 
-       curStatus = (TextView)findViewById(R.id.curStatus);
+        curStatus = (TextView)findViewById(R.id.curStatus);
 
         int[][] data = new int[20][15];
 
@@ -120,8 +120,8 @@ public class MainActivity extends AppCompatActivity {
 
 
             // v20
-           //params.height = 70;
-           //params.width = 60;
+            //params.height = 70;
+            //params.width = 60;
 
             grids[i].setLayoutParams(params);
 
@@ -463,7 +463,7 @@ public class MainActivity extends AppCompatActivity {
 
 
         //ask if bluetooth is enabled
-       mBluetoothAdapter = BluetoothAdapter.getDefaultAdapter();
+        mBluetoothAdapter = BluetoothAdapter.getDefaultAdapter();
         if (!mBluetoothAdapter.isEnabled()) {
             Intent enableBtIntent = new Intent(BluetoothAdapter.ACTION_REQUEST_ENABLE);
             startActivityForResult(enableBtIntent, 1);
@@ -488,7 +488,7 @@ public class MainActivity extends AppCompatActivity {
 
                 String stuff = msg.getData().getString("Stuff" , "NOTHING");
                 if(stuff.equals("NOTHING") != true)
-                toast(stuff);
+                    toast(stuff);
 
                 byte[] bytes = msg.getData().getByteArray(Constants.SEND_TRANSMISSION);
 
@@ -501,36 +501,36 @@ public class MainActivity extends AppCompatActivity {
                     }
                     messageTextView.append(ss);
 
-                   String s = new String(bytes);
-                   if(s.startsWith("#update:")){
+                    String s = new String(bytes);
+                    if(s.startsWith("#update:")){
 
-                       s = s.substring(s.indexOf(":")+1, s.length());
+                        s = s.substring(s.indexOf(":")+1, s.length());
                         Log.i("AndroidMDP" , s);
 
-                       while(true) {
-                           int locationOfComma = s.indexOf(",");
-                           String location = "";
+                        while(true) {
+                            int locationOfComma = s.indexOf(",");
+                            String location = "";
 
-                           if(locationOfComma != -1) {
-                               location = s.substring(0, locationOfComma);
-                               s=s.substring(locationOfComma+1,s.length());
-                               setLocationData(Integer.valueOf(location));
-                               grids[Integer.valueOf(location)].setBackgroundColor(Color.rgb(000, 255, 000));
+                            if(locationOfComma != -1) {
+                                location = s.substring(0, locationOfComma);
+                                s=s.substring(locationOfComma+1,s.length());
+                                setLocationData(Integer.valueOf(location));
+                                grids[Integer.valueOf(location)].setBackgroundColor(Color.rgb(000, 255, 000));
 
-                           }
-                           Log.i("AndroidMDP" , location);
+                            }
+                            Log.i("AndroidMDP" , location);
 
-                           if(locationOfComma == -1){
-                               break;
-                           }
-                       }
-                       updateMap(data);
-                       mMap.invalidate();
-                   }
+                            if(locationOfComma == -1){
+                                break;
+                            }
+                        }
+                        updateMap(data);
+                        mMap.invalidate();
+                    }
                     if(s.startsWith("#mass:")){
 
-                       s = s.substring(s.indexOf(":")+1, s.length());
-                       s = s.substring(0 , s.indexOf("/") );
+                        s = s.substring(s.indexOf(":")+1, s.length());
+                        s = s.substring(0 , s.indexOf("/") );
 
                         setLocationDataHex(s);
                     }
