@@ -34,6 +34,9 @@ import android.widget.TextView;
 import android.widget.Toast;
 import android.widget.ToggleButton;
 
+import org.json.JSONException;
+import org.json.JSONObject;
+
 import java.io.UnsupportedEncodingException;
 import java.util.Set;
 
@@ -636,29 +639,33 @@ public class MainActivity extends AppCompatActivity {
 
     private void setLocationData(int locationData){
 
-        int x = locationData/15;
+       /* int x = locationData/15;
         int y = locationData%15;
 
-        data[x][y] = 1;
+        data[x][y] = 1;*/
 
     }
 
 
     private void setLocationDataHex(String hex){
         String binary = "";
+
         for(int i = 0 ; i < hex.length() ; i++){
             char c = hex.charAt(i);
-            long hexlong = Long.parseLong(String.valueOf(c) , 16);
-            binary = binary + Long.toBinaryString(hexlong);
+            //long hexlong = Long.parseLong(String.valueOf(c) , 16);
+            //binary = binary + Long.toBinaryString(hexlong);
+            binary = binary + HexToBinary.HexToBinary(String.valueOf(c));
         }
 
-        int n = 512 - binary.length();
+        Log.i("AndroidMDP" , "binary is " + binary);
+        Log.i("AndroidMDP" , "Length of binary is " + binary.length());
 
+     /*   int n = 512 - binary.length();
         for(int i = 0 ; i < n ; i++){
             binary = "0" + binary;
         }
 
-        binary = binary.substring(211,binary.length()-1);
+        binary = binary.substring(211,binary.length()-1);*/
 
         for (int i = 0 ; i < binary.length() ; i++){
             char c = binary.charAt(i);
@@ -671,8 +678,6 @@ public class MainActivity extends AppCompatActivity {
             else{
 
                 MDF[i] = 0;
-
-
 
             }
         }
@@ -758,6 +763,7 @@ public class MainActivity extends AppCompatActivity {
                         e.printStackTrace();
                     }
                     messageTextView.append(ss);
+                    Log.i("AndroidMDP" ,ss);
 
                     String s = new String(bytes);
                     if(s.startsWith("#update:")){
@@ -786,11 +792,24 @@ public class MainActivity extends AppCompatActivity {
                         mMap.invalidate();
                     }
 
-                    if(s.startsWith("#mass:")){
-                        s = s.substring(s.indexOf(":")+1, s.length());
-                        s = s.substring(0 , s.indexOf("/") );
-                        currentLocation = s;
-                        setLocationDataHex(s);
+
+                    if(s.startsWith("{")){
+
+
+                        try {
+                            JSONObject jObject = new JSONObject(s);
+                            s = jObject.getString("grid");
+                            Log.i("AndroidMAP" , "s is " + s);
+                       /* s = s.substring(s.indexOf(":")+1, s.length());
+                        s = s.substring(0 , s.indexOf("/") );*/
+                            currentLocation = s;
+                            setLocationDataHex(s);
+
+                        } catch (JSONException e) {
+                            e.printStackTrace();
+                        }
+
+
                     }
 
                     if(s.startsWith("#status:")){
