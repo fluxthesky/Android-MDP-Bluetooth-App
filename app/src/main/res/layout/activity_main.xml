@@ -145,6 +145,33 @@
             android:textColor="@android:color/black"
             android:textSize="18sp" />
 
+        <ToggleButton
+            android:id="@+id/autoUpdateToggle"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:layout_alignParentEnd="true"
+            android:layout_below="@+id/map_grid"
+            android:text="ToggleButton" />
+
+        <TextView
+            android:id="@+id/textView"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:layout_alignBaseline="@+id/autoUpdateToggle"
+            android:layout_alignBottom="@+id/autoUpdateToggle"
+            android:layout_toStartOf="@+id/autoUpdateToggle"
+            android:text="Auto Update:"
+            android:textColor="@android:color/black"
+            android:textSize="18sp" />
+
+        <Button
+            android:id="@+id/manualUpBtn"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:layout_alignParentEnd="true"
+            android:layout_below="@+id/autoUpdateToggle"
+            android:text="Update" />
+
 
     </RelativeLayout>
 

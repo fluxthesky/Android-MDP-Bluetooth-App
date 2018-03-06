@@ -23,6 +23,7 @@ import android.view.MenuItem;
 import android.view.View;
 import android.view.ViewGroup;
 import android.widget.Button;
+import android.widget.CompoundButton;
 import android.widget.EditText;
 import android.widget.GridLayout;
 import android.widget.GridView;
@@ -31,6 +32,7 @@ import android.widget.ImageView;
 import android.widget.LinearLayout;
 import android.widget.TextView;
 import android.widget.Toast;
+import android.widget.ToggleButton;
 
 import java.io.UnsupportedEncodingException;
 import java.util.Set;
@@ -56,6 +58,12 @@ public class MainActivity extends AppCompatActivity {
     int head = robotLocation - 15;
     int robotDirection = Constants.NORTH;
 
+    boolean autoUpdate = false;
+
+    Button manualUpBtn;
+    ToggleButton autoUpdateToggle;
+    String currentLocation, currentStatus;
+    Thread autoUpdateThread;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -75,24 +83,21 @@ public class MainActivity extends AppCompatActivity {
 
         curStatus = (TextView)findViewById(R.id.curStatus);
 
+        manualUpBtn = (Button) findViewById(R.id.manualUpBtn);
+        autoUpdateToggle = (ToggleButton) findViewById(R.id.autoUpdateToggle);
+
         int[][] data = new int[20][15];
 
         for(int i = 0; i < 20; i++){
-
             for(int j = 0; j < 15; j++) {
-
                 data[i][j] = 0;
-
             }
-
         }
 
         data[3][13] = 1;
         data[3][14] = 1;
 
         updateMap(data);
-
-
 
         for(int i = 0 ; i < 300 ; i++){
 
@@ -118,7 +123,6 @@ public class MainActivity extends AppCompatActivity {
             params.height = 45;
             params.width = 53;
 
-
             // v20
             //params.height = 70;
             //params.width = 60;
@@ -127,6 +131,8 @@ public class MainActivity extends AppCompatActivity {
 
             mapLayout.addView(grids[i]);
         }
+
+        initializeAutoUpdate();
 
         messageTextView = temp;
 
@@ -181,6 +187,54 @@ public class MainActivity extends AppCompatActivity {
 
               /*  if(service != null)
                 service.write(Constants.ACTION_ROATE_RIGHT.getBytes());*/
+            }
+        });
+    }
+
+    public void initializeAutoUpdate(){
+        final Thread t = new Thread(){
+            @Override
+            public void run(){
+                while(!isInterrupted()){
+                    try{
+                        Thread.sleep(500);
+                        runOnUiThread(new Runnable() {
+                            @Override
+                            public void run() {
+                                if(autoUpdate) {
+                                    setLocationDataHex(currentLocation);
+                                    setRobotStatus(currentStatus);
+                                }
+                            }
+                        });
+                    }catch(InterruptedException e){
+                        e.printStackTrace();
+                    }
+                }
+            }
+        };
+
+        currentLocation = currentStatus = "";
+        autoUpdateToggle.setOnCheckedChangeListener(new CompoundButton.OnCheckedChangeListener() {
+            @Override
+            public void onCheckedChanged(CompoundButton compoundButton, boolean b) {
+                if(b){
+                    manualUpBtn.setVisibility(View.GONE);
+                    autoUpdate = true;
+                    if(!t.isAlive())
+                        t.start();
+                }else{
+                    manualUpBtn.setVisibility(View.VISIBLE);
+                    autoUpdate = false;
+                }
+            }
+        });
+
+        manualUpBtn.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View v) {
+                setLocationDataHex(currentLocation);
+                setRobotStatus(currentStatus);
             }
         });
     }
@@ -382,7 +436,6 @@ public class MainActivity extends AppCompatActivity {
 
     private void setLocationDataHex(String hex){
         String binary = "";
-
         for(int i = 0 ; i < hex.length() ; i++){
             char c = hex.charAt(i);
             long hexlong = Long.parseLong(String.valueOf(c) , 16);
@@ -392,15 +445,12 @@ public class MainActivity extends AppCompatActivity {
         int n = 512 - binary.length();
 
         for(int i = 0 ; i < n ; i++){
-
             binary = "0" + binary;
-
         }
 
         binary = binary.substring(211,binary.length()-1);
 
         for (int i = 0 ; i < binary.length() ; i++){
-
             char c = binary.charAt(i);
             if(c == '1'){
                 setLocationData(i);
@@ -432,19 +482,13 @@ public class MainActivity extends AppCompatActivity {
                 head = head + 16;
                 robotDirection = Constants.SOUTH;
                 break;
-
         }
-
-
-
-
     }
-    private void startSearchDeviceActivity(){
 
+    private void startSearchDeviceActivity(){
         Intent i = new Intent(this, ListActivityBluetooth.class);
         startActivityForResult(i,Constants.ACTIVITY_RESULTS);
     }
-
 
     private void showPairedDevices(){
         Set<BluetoothDevice> pairedDevices = mBluetoothAdapter.getBondedDevices();
@@ -460,8 +504,6 @@ public class MainActivity extends AppCompatActivity {
 
 
     private void setupBluetooth(){
-
-
         //ask if bluetooth is enabled
         mBluetoothAdapter = BluetoothAdapter.getDefaultAdapter();
         if (!mBluetoothAdapter.isEnabled()) {
@@ -472,17 +514,12 @@ public class MainActivity extends AppCompatActivity {
 
 
         //make device discoverable
-        Intent discoverableIntent =
-                new Intent(BluetoothAdapter.ACTION_REQUEST_DISCOVERABLE);
+        Intent discoverableIntent = new Intent(BluetoothAdapter.ACTION_REQUEST_DISCOVERABLE);
         discoverableIntent.putExtra(BluetoothAdapter.EXTRA_DISCOVERABLE_DURATION, 300);
         startActivity(discoverableIntent);
 
-
-
-
         // receiving message from connected bluetooth device
         Handler mHandler = new Handler(Looper.getMainLooper()){
-
             @Override
             public void handleMessage(Message msg) {
 
@@ -527,18 +564,18 @@ public class MainActivity extends AppCompatActivity {
                         updateMap(data);
                         mMap.invalidate();
                     }
-                    if(s.startsWith("#mass:")){
 
+                    if(s.startsWith("#mass:")){
                         s = s.substring(s.indexOf(":")+1, s.length());
                         s = s.substring(0 , s.indexOf("/") );
-
-                        setLocationDataHex(s);
+                        currentLocation = s;
                     }
+
                     if(s.startsWith("#status:")){
                         s = s.substring(s.indexOf(":")+1, s.length());
                         s = s.substring(0, s.indexOf("/"));
                         s = s.toLowerCase();
-                        setRobotStatus(s);
+                        currentStatus = s;
                     }
                 }
             }
