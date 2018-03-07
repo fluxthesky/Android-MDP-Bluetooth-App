@@ -18,6 +18,28 @@ public class Constants {
     public static final int SOUTH = 2;
     public static final int EAST = 3;
     public static final int WEST = 4;
+    public static final String RPI_FORWARD = "f";
+    public static final String RPI_LEFT = "l";
+    public static final String RPI_RIGHT = "r";
+    public static final String RPI_180 = "b";
+    public static final String RPI_CALIBRATE = "a";
+    public static final String RPI_START  = "s";
+
+    
+
+
+    //move forward f
+    //move left l
+    //move right r
+    //move 180 b
+    //calibrate a
+    //onStart s
+    //
+
+    // mdf string
+    // center of the robot in (0,0)
+    // direction of the robot 1 N 2 S 3 E 4 W
+    //
 
 
 }

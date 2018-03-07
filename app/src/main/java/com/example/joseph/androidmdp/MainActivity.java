@@ -5,8 +5,10 @@ import android.app.AlertDialog;
 import android.bluetooth.BluetoothAdapter;
 import android.bluetooth.BluetoothDevice;
 import android.content.BroadcastReceiver;
+import android.content.Context;
 import android.content.DialogInterface;
 import android.content.Intent;
+import android.content.IntentFilter;
 import android.content.SharedPreferences;
 import android.graphics.Color;
 import android.os.Handler;
@@ -135,6 +137,42 @@ public class MainActivity extends AppCompatActivity {
 
         setupMap();
 
+        IntentFilter filter1 = new IntentFilter(BluetoothAdapter.ACTION_STATE_CHANGED);
+
+
+        mReceiver = new BroadcastReceiver() {
+
+            @Override
+            public void onReceive(Context context, Intent intent) {
+                final String action = intent.getAction();
+
+                if (action.equals(BluetoothAdapter.ACTION_STATE_CHANGED)) {
+                    final int state = intent.getIntExtra(BluetoothAdapter.EXTRA_STATE, BluetoothAdapter.ERROR);
+                    switch(state) {
+                        case BluetoothAdapter.STATE_OFF:
+
+                            break;
+                        case BluetoothAdapter.STATE_TURNING_OFF:
+
+                            Toast.makeText(MainActivity.this,"Bluetooth turned off!" , Toast.LENGTH_SHORT).show();
+                            break;
+                        case BluetoothAdapter.STATE_ON:
+
+                            setupBluetooth();
+                            break;
+                        case BluetoothAdapter.STATE_TURNING_ON:
+
+                            break;
+                    }
+
+                }
+            }
+        };
+
+
+        registerReceiver(mReceiver, filter1);
+
+
 
         initializeAutoUpdate();
 
@@ -223,15 +261,39 @@ public class MainActivity extends AppCompatActivity {
 
                     case Constants.NORTH:
                         robotLocation+=15;
+                        if(robotLocation>=285)
+                        {
+
+                            robotLocation-=15;
+
+                        }
                         break;
                     case Constants.SOUTH:
                         robotLocation-=15;
+                        if(robotLocation<=14)
+                        {
+
+                            robotLocation+=15;
+
+                        }
                         break;
                     case Constants.EAST:
                         robotLocation-=1;
+                        if(robotLocation%15 == 0)
+                        {
+
+                            robotLocation+=1;
+
+                        }
                         break;
                     case Constants.WEST:
                         robotLocation+=1;
+                        if((robotLocation + 1)%15 == 0)
+                        {
+
+                            robotLocation-=1;
+
+                        }
                         break;
 
 
@@ -317,6 +379,14 @@ public class MainActivity extends AppCompatActivity {
                 service.write(Constants.ACTION_ROATE_RIGHT.getBytes());
             }
         });
+    }
+
+    @Override
+    protected void onDestroy() {
+
+
+        unregisterReceiver(mReceiver);
+        super.onDestroy();
     }
 
     public void initializeAutoUpdate(){
@@ -1135,6 +1205,25 @@ public class MainActivity extends AppCompatActivity {
 
 
                     }
+
+                    if(s.startsWith("#mdf:")){
+
+
+                        {
+
+
+
+                       s = s.substring(s.indexOf(":")+1, s.length());
+                        s = s.substring(0 , s.indexOf("/") );
+                                currentLocation = s;
+
+                                if(autoUpdate) {
+                                    setLocationDataHex(s);
+                                }
+                            }
+
+
+                        }
 
                     if(s.startsWith("#status:")){
                         s = s.substring(s.indexOf(":")+1, s.length());
