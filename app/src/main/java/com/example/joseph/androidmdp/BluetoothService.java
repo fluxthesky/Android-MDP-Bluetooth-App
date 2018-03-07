@@ -34,10 +34,10 @@ public class BluetoothService {
     BluetoothAdapter mBluetoothAdapter;
     String deviceAddress;
 
-    private BluetoothServiceForConnect connectThread;
+    private  BluetoothServiceForConnect connectThread;
     private BluetoothServiceForListen listenThread;
     private Timer runAgain = new Timer();
-    private ConnectedThread connectedThread;
+    private static ConnectedThread connectedThread;
     private boolean listenRunning = true;
 
     public BluetoothService(Context context, Handler handler, BluetoothAdapter adapter, String deviceAddress) {
@@ -68,6 +68,12 @@ public class BluetoothService {
 
         connectThread.start();
         listenThread.start();
+
+
+
+
+
+
 
     }
 
@@ -121,6 +127,7 @@ public class BluetoothService {
             BluetoothSocket socket = null;
             // Keep listening until exception occurs or a socket is returned.
             while (listenRunning) {
+
                 try {
                     if(mmServerSocket != null)
                     socket = mmServerSocket.accept();
@@ -133,12 +140,12 @@ public class BluetoothService {
                     // A connection was accepted. Perform work associated with
                     // the connection in a separate thread.
 
-                    Log.i("AndroidMDP" , "Connected on listen!");
-                    Message msg = new Message();
+                    Log.i("AndroidMDP" , "Successful on runListen!");
+                    /*Message msg = new Message();
                     Bundle bun = new Bundle();
                     bun.putString("Stuff", "Connected on listen");
                     msg.setData(bun);
-                    handler.sendMessage(msg);
+                    handler.sendMessage(msg);*/
                     startConnectedThread(socket);
 
 
@@ -248,11 +255,19 @@ public class BluetoothService {
 
     public void write(byte[] bytes){
 
-        if(connectedThread != null) {
+       if(connectedThread != null) {
 
             Log.i("AndroidMDP" , "WRITING WRITING WRITING");
             connectedThread.write(bytes);
         }
+        else if (connectedThread == null){
+
+           Log.i("AndroidMDP" , "CONNECTEDTHREAD NULL AT WRITE");
+
+
+       }
+
+        //connectedThread.write(bytes);
 
 
     }
@@ -260,8 +275,18 @@ public class BluetoothService {
     private void startConnectedThread(BluetoothSocket mmServerSocketForConnect){
 
 
+        Log.i("AndroidMDP" , "starting connectedthread startConnectedThread");
         connectedThread = new ConnectedThread(mmServerSocketForConnect);
         connectedThread.start();
+
+        if(connectedThread == null){
+
+
+            Log.i("AndroidMDP" , "connectedthread startConnectedThread is NOT RUNNING");
+
+
+
+        }
 
        /* Message msg = new Message();
         Bundle bun = new Bundle();
@@ -332,6 +357,9 @@ public class BluetoothService {
 
             runAgain.cancel();
 
+            Log.i("AndroidMDP" ,"connectedThread is running");
+
+
             mmBuffer = new byte[1024];
             int numBytes;
 
@@ -358,6 +386,7 @@ public class BluetoothService {
 
             }
 
+            Log.i("AndroidMDP" ,"connectedThread is dead!");
 
 
         }
@@ -402,7 +431,7 @@ public class BluetoothService {
                 connectThread.start();
                 listenThread.start();*/
 
-              Log.i("AndroidMDP" ,"VERY IMPORTANT CONNECTION ISSUES");
+              Log.i("AndroidMDP" ,"START BLUETOOTHSERVICEFORLISTEN LISTENAGAIN");
 
 
                // final BluetoothServiceForConnect connectAgain = new BluetoothServiceForConnect();
