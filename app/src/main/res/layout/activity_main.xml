@@ -173,6 +173,24 @@
             android:text="Update" />
 
 
+        <ToggleButton
+            android:id="@+id/robotUpBtn"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:layout_alignBottom="@+id/left"
+            android:layout_alignParentStart="true"
+            android:text="Set Robot" />
+
+        <ToggleButton
+            android:id="@+id/waypointUpBtn"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:layout_alignParentStart="true"
+            android:layout_below="@+id/statusText"
+            android:text="Set Waypoint" />
+
+
+
     </RelativeLayout>
 
 </android.support.constraint.ConstraintLayout>

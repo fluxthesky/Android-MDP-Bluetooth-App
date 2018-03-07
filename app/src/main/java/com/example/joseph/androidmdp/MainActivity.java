@@ -38,6 +38,7 @@ import org.json.JSONException;
 import org.json.JSONObject;
 
 import java.io.UnsupportedEncodingException;
+import java.util.ArrayList;
 import java.util.Set;
 
 import static android.view.ViewGroup.LayoutParams.WRAP_CONTENT;
@@ -63,11 +64,37 @@ public class MainActivity extends AppCompatActivity {
     int oldRobotLocation = -1;
     int MDF[] = new int[300];
 
+
+    int waypoint = 0;
+
+
+
+
+
+
+
+
+    ArrayList<Integer> robotHistory = new ArrayList<Integer>();
+    ArrayList<Integer> exploredRobotHistory = new ArrayList<Integer>();
+
+
     boolean autoUpdate = false;
+    boolean setRobot = false;
+    boolean setWaypoint = false;
+
+
 
     Button manualUpBtn;
     ToggleButton autoUpdateToggle;
-    String currentLocation, currentStatus;
+    ToggleButton autoUpdateToggleRobot;
+    ToggleButton autoUpdateToggleWaypoint;
+
+
+
+    String currentLocation = "000000000000000000000000000000000000000000000000000000000000000000000000000" , currentStatus;
+
+
+
     Thread autoUpdateThread;
 
     @Override
@@ -90,6 +117,8 @@ public class MainActivity extends AppCompatActivity {
 
         manualUpBtn = (Button) findViewById(R.id.manualUpBtn);
         autoUpdateToggle = (ToggleButton) findViewById(R.id.autoUpdateToggle);
+        autoUpdateToggleRobot = (ToggleButton) findViewById(R.id.robotUpBtn);
+        autoUpdateToggleWaypoint = (ToggleButton) findViewById(R.id.waypointUpBtn);
 
         int[][] data = new int[20][15];
 
@@ -123,25 +152,54 @@ public class MainActivity extends AppCompatActivity {
                 drawRobot();
                 robotLocation -= 15;*/
               oldRobotLocation = robotLocation;
+              robotHistory.add(oldRobotLocation);
 
                 switch (robotDirection){
 
                     case Constants.NORTH:
                         robotLocation-=15;
+                        if(robotLocation<=14)
+                        {
+
+                            robotLocation+=15;
+
+                        }
                         break;
                     case Constants.SOUTH:
                         robotLocation+=15;
+                        if(robotLocation>=285)
+                        {
+
+                            robotLocation-=15;
+
+                        }
                         break;
                     case Constants.EAST:
                         robotLocation+=1;
+                        if((robotLocation + 1)%15 == 0)
+                        {
+
+                            robotLocation-=1;
+
+                        }
                         break;
                     case Constants.WEST:
                         robotLocation-=1;
-                        break;
+
+                        if(robotLocation%15 == 0)
+                        {
+
+                            robotLocation+=1;
+
+                        }
+                         break;
 
 
                 }
-              drawRobot();
+                if(autoUpdate) {
+                    drawRobot();
+                    setRobotStatus("moving forward");
+                }
                 if(service != null)
                 service.write(Constants.ACTION_FORWARD.getBytes());
 
@@ -153,7 +211,37 @@ public class MainActivity extends AppCompatActivity {
 
                 /*updateRobotLocation(robotLocation + 15 , Constants.SOUTH);
                 robotLocation += 15; */
-               if(service != null)
+
+
+                oldRobotLocation = robotLocation;
+
+                robotHistory.add(oldRobotLocation);
+
+                switch (robotDirection){
+
+                    case Constants.NORTH:
+                        robotLocation+=15;
+                        break;
+                    case Constants.SOUTH:
+                        robotLocation-=15;
+                        break;
+                    case Constants.EAST:
+                        robotLocation-=1;
+                        break;
+                    case Constants.WEST:
+                        robotLocation+=1;
+                        break;
+
+
+                }
+
+                if(autoUpdate) {
+                    drawRobot();
+                    setRobotStatus("reversing");
+                }
+
+
+                if(service != null)
                 service.write(Constants.ACTION_REVERSE.getBytes());
             }
         });
@@ -183,8 +271,10 @@ public class MainActivity extends AppCompatActivity {
 
 
               }
-              drawRobot();
-
+              if(autoUpdate) {
+                  drawRobot();
+                  setRobotStatus("turning left");
+              }
 
                if(service != null)
                 service.write(Constants.ACTION_ROATE_LEFT.getBytes());
@@ -217,7 +307,10 @@ public class MainActivity extends AppCompatActivity {
 
 
                 }
-                drawRobot();
+                if(autoUpdate) {
+                    drawRobot();
+                    setRobotStatus("turning right");
+                }
                 if(service != null)
                 service.write(Constants.ACTION_ROATE_RIGHT.getBytes());
             }
@@ -235,8 +328,9 @@ public class MainActivity extends AppCompatActivity {
                             @Override
                             public void run() {
                                 if(autoUpdate) {
-                                    setLocationDataHex(currentLocation);
+                                   // setLocationDataHex(currentLocation);
                                     setRobotStatus(currentStatus);
+                                   // drawRobot();
                                 }
                             }
                         });
@@ -263,14 +357,84 @@ public class MainActivity extends AppCompatActivity {
             }
         });
 
+        autoUpdateToggleRobot.setOnCheckedChangeListener(new CompoundButton.OnCheckedChangeListener() {
+            @Override
+            public void onCheckedChanged(CompoundButton compoundButton, boolean b) {
+                if(b){
+                    setRobot = true;
+                }else{
+                    setRobot = false;
+                }
+            }
+        });
+
+
+        autoUpdateToggleWaypoint.setOnCheckedChangeListener(new CompoundButton.OnCheckedChangeListener() {
+            @Override
+            public void onCheckedChanged(CompoundButton compoundButton, boolean b) {
+                if(b){
+                    setWaypoint = true;
+                }else{
+                    setWaypoint = false;
+                }
+            }
+        });
+
         manualUpBtn.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
+                drawRobot();
+
                 setLocationDataHex(currentLocation);
                 setRobotStatus(currentStatus);
-            }
+             }
         });
     }
+
+
+    public void redrawRobot(){
+
+
+
+
+
+    }
+
+
+    public void drawMap(){
+
+
+
+
+        grids[14].setBackgroundColor(Color.GRAY);
+        grids[13].setBackgroundColor(Color.GRAY);
+        grids[12].setBackgroundColor(Color.GRAY);
+        grids[29].setBackgroundColor(Color.GRAY);
+        grids[28].setBackgroundColor(Color.GRAY);
+        grids[27].setBackgroundColor(Color.GRAY);
+        grids[44].setBackgroundColor(Color.GRAY);
+        grids[43].setBackgroundColor(Color.GRAY);
+        grids[42].setBackgroundColor(Color.GRAY);
+
+        grids[285].setBackgroundColor(Color.GRAY);
+        grids[286].setBackgroundColor(Color.GRAY);
+        grids[287].setBackgroundColor(Color.GRAY);
+        grids[270].setBackgroundColor(Color.GRAY);
+        grids[271].setBackgroundColor(Color.GRAY);
+        grids[272].setBackgroundColor(Color.GRAY);
+        grids[255].setBackgroundColor(Color.GRAY);
+        grids[256].setBackgroundColor(Color.GRAY);
+        grids[257].setBackgroundColor(Color.GRAY);
+
+        setLocationDataHex(currentLocation);
+
+
+    }
+
+
+
+
+
 
 
     @Override
@@ -291,7 +455,67 @@ public class MainActivity extends AppCompatActivity {
         btn.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
-                btn.setBackgroundColor(Color.rgb(000, 000, 000));
+              //  btn.setBackgroundColor(Color.rgb(000, 000, 000));
+
+
+
+                Log.i("AndroidMDP" , "Grid no " + String.valueOf(k));
+
+                if(setRobot){
+
+
+
+
+
+
+
+
+                    if((k%15 == 0)   || ((k + 1)%15 == 0)  || (k<=14) || (k>=285) )
+                    {
+
+
+                        Toast.makeText(MainActivity.this, "Invalid point!", Toast.LENGTH_SHORT).show();
+
+
+                    }
+
+
+
+                    else {
+
+                        oldRobotLocation = robotLocation;
+                        robotLocation = k;
+                        String s = "robot start coordinate " + locationToCoordinate(robotLocation);
+                        if (service != null)
+                            service.write(s.getBytes());
+
+                        drawRobot();
+                    }
+
+                }
+
+                if(setWaypoint){
+
+
+                    waypoint = k;
+                    grids[waypoint].setBackgroundColor(Color.YELLOW);
+                    String s = "coordinate " + locationToCoordinate(waypoint);
+                    if(service != null)
+                    service.write(s.getBytes());
+
+
+
+                }
+
+
+
+
+
+
+
+
+
+
             }
         });
         grids[i] = btn;
@@ -359,8 +583,10 @@ public class MainActivity extends AppCompatActivity {
             oldRobotLocation = robotLocation;
             robotLocation = Integer.valueOf(s.substring(0, s.indexOf(",")));
          }
-    robotDirection = Integer.valueOf(s.substring(s.indexOf(",")+1));
-    drawRobot();
+        robotDirection = Integer.valueOf(s.substring(s.indexOf(",")+1));
+        robotHistory.add(oldRobotLocation);
+
+        drawRobot();
 
 
 
@@ -371,6 +597,20 @@ public class MainActivity extends AppCompatActivity {
 
 
 
+    public String locationToCoordinate(int location){
+
+
+        int x = location/15;
+        int y = location%15;
+
+        return  "(" + x + "," + y +  ")";
+
+
+
+
+
+
+    }
 
 
 
@@ -401,7 +641,7 @@ public class MainActivity extends AppCompatActivity {
         Log.i("AndroidMDP" , "old is " + String.valueOf(oldRobotLocation) + " new is " + String.valueOf(robotLocation));
 
 
-        int oldCenter = oldRobotLocation;
+     /*   int oldCenter = oldRobotLocation;
         int oldNorth = oldCenter - 15;
         int oldSouth = oldCenter + 15;
         int oldEast = oldCenter + 1;
@@ -419,7 +659,79 @@ public class MainActivity extends AppCompatActivity {
         grids[oldNorthwest].setBackgroundColor(Color.RED);
         grids[oldNortheast].setBackgroundColor(Color.RED);
         grids[oldSouthwest].setBackgroundColor(Color.RED);
-        grids[oldSoutheast].setBackgroundColor(Color.RED);
+        grids[oldSoutheast].setBackgroundColor(Color.RED);*/
+
+
+        if(setRobot){
+
+            int oldCenter = oldRobotLocation;
+            int oldNorth = oldCenter - 15;
+            int oldSouth = oldCenter + 15;
+            int oldEast = oldCenter + 1;
+            int oldWest = oldCenter - 1;
+            int oldNorthwest = oldNorth - 1;
+            int oldNortheast = oldNorth + 1;
+            int oldSouthwest = oldSouth - 1;
+            int oldSoutheast = oldSouth + 1;
+
+            grids[oldCenter].setBackgroundColor(Color.WHITE);
+            grids[oldNorth].setBackgroundColor(Color.WHITE);
+            grids[oldSouth].setBackgroundColor(Color.WHITE);
+            grids[oldEast].setBackgroundColor(Color.WHITE);
+            grids[oldWest].setBackgroundColor(Color.WHITE);
+            grids[oldNorthwest].setBackgroundColor(Color.WHITE);
+            grids[oldNortheast].setBackgroundColor(Color.WHITE);
+            grids[oldSouthwest].setBackgroundColor(Color.WHITE);
+            grids[oldSoutheast].setBackgroundColor(Color.WHITE  );
+
+
+
+        }
+
+
+
+
+
+        for (int i = 0 ; i < robotHistory.size(); i ++){
+
+
+          //  if(exploredRobotHistory.contains(robotHistory.get(i)) != true) {
+
+
+                int oldCenter = robotHistory.get(i);
+                int oldNorth = oldCenter - 15;
+                int oldSouth = oldCenter + 15;
+                int oldEast = oldCenter + 1;
+                int oldWest = oldCenter - 1;
+                int oldNorthwest = oldNorth - 1;
+                int oldNortheast = oldNorth + 1;
+                int oldSouthwest = oldSouth - 1;
+                int oldSoutheast = oldSouth + 1;
+
+                grids[oldCenter].setBackgroundColor(Color.RED);
+                grids[oldNorth].setBackgroundColor(Color.RED);
+                grids[oldSouth].setBackgroundColor(Color.RED);
+                grids[oldEast].setBackgroundColor(Color.RED);
+                grids[oldWest].setBackgroundColor(Color.RED);
+                grids[oldNorthwest].setBackgroundColor(Color.RED);
+                grids[oldNortheast].setBackgroundColor(Color.RED);
+                grids[oldSouthwest].setBackgroundColor(Color.RED);
+                grids[oldSoutheast].setBackgroundColor(Color.RED);
+
+                exploredRobotHistory.add(robotHistory.get(i));
+
+
+         //   }
+
+        }
+
+
+
+
+
+
+
+
 
         int center = robotLocation;
         int north = center - 15;
@@ -431,23 +743,30 @@ public class MainActivity extends AppCompatActivity {
         int southwest = south - 1;
         int southeast = south + 1;
 
-        //draw the robot
-        grids[center].setBackgroundColor(Color.GREEN);
-        grids[north].setBackgroundColor(Color.rgb(000, 255, 000));
-        grids[south].setBackgroundColor(Color.rgb(000, 255, 000));
-        grids[east].setBackgroundColor(Color.rgb(000, 255, 000));
-        grids[west].setBackgroundColor(Color.rgb(000, 255, 000));
-        grids[northwest].setBackgroundColor(Color.rgb(0, 0, 0));
-        grids[northeast].setBackgroundColor(Color.rgb(0, 0, 0));
-        grids[southwest].setBackgroundColor(Color.rgb(0, 0, 0));
-        grids[southeast].setBackgroundColor(Color.rgb(0, 0, 0));
 
-        //draw the head
+        if((center <= 299 && center >= 284) != true && (center <= 0 && center >= 14) != true) {
 
-        switch (robotDirection){
+            drawMap();
 
-            case Constants.NORTH:
-                grids[center -15 ].setBackgroundColor(Color.BLUE);
+
+
+            //draw the robot
+            grids[center].setBackgroundColor(Color.GREEN);
+            grids[north].setBackgroundColor(Color.rgb(000, 255, 000));
+            grids[south].setBackgroundColor(Color.rgb(000, 255, 000));
+            grids[east].setBackgroundColor(Color.rgb(000, 255, 000));
+            grids[west].setBackgroundColor(Color.rgb(000, 255, 000));
+            grids[northwest].setBackgroundColor(Color.DKGRAY);
+            grids[northeast].setBackgroundColor(Color.DKGRAY);
+            grids[southwest].setBackgroundColor(Color.DKGRAY);
+            grids[southeast].setBackgroundColor(Color.DKGRAY);
+
+            //draw the head
+
+            switch (robotDirection) {
+
+                case Constants.NORTH:
+                    grids[center - 15].setBackgroundColor(Color.BLUE);
                /* if(oldRobotLocation != robotLocation){
 
                     grids[oldRobotLocation+14].setBackgroundColor(Color.RED);
@@ -455,9 +774,9 @@ public class MainActivity extends AppCompatActivity {
                     grids[oldRobotLocation+16].setBackgroundColor(Color.RED);
 
                 }*/
-                break;
-            case Constants.SOUTH:
-                grids[center+15].setBackgroundColor(Color.BLUE);
+                    break;
+                case Constants.SOUTH:
+                    grids[center + 15].setBackgroundColor(Color.BLUE);
                /* if(oldRobotLocation != robotLocation){
 
                     grids[oldRobotLocation-14].setBackgroundColor(Color.RED);
@@ -465,9 +784,9 @@ public class MainActivity extends AppCompatActivity {
                     grids[oldRobotLocation-16].setBackgroundColor(Color.RED);
 
                 }*/
-                break;
-            case Constants.EAST:
-                grids[center+1].setBackgroundColor(Color.BLUE);
+                    break;
+                case Constants.EAST:
+                    grids[center + 1].setBackgroundColor(Color.BLUE);
               /*  if(oldRobotLocation != robotLocation){
 
                     grids[oldRobotLocation-1].setBackgroundColor(Color.RED);
@@ -475,9 +794,9 @@ public class MainActivity extends AppCompatActivity {
                     grids[oldRobotLocation+14].setBackgroundColor(Color.RED);
 
                 }*/
-                break;
-            case Constants.WEST:
-                grids[center-1].setBackgroundColor(Color.BLUE);
+                    break;
+                case Constants.WEST:
+                    grids[center - 1].setBackgroundColor(Color.BLUE);
               /*  if(oldRobotLocation != robotLocation){
 
                     grids[oldRobotLocation+1].setBackgroundColor(Color.RED);
@@ -485,10 +804,11 @@ public class MainActivity extends AppCompatActivity {
                     grids[oldRobotLocation+15].setBackgroundColor(Color.RED);
 
                 }*/
-                break;
+                    break;
 
-        }
+            }
 
+         }
 
     }
 
@@ -803,8 +1123,10 @@ public class MainActivity extends AppCompatActivity {
                        /* s = s.substring(s.indexOf(":")+1, s.length());
                         s = s.substring(0 , s.indexOf("/") );*/
                             currentLocation = s;
-                            setLocationDataHex(s);
 
+                            if(autoUpdate) {
+                                setLocationDataHex(s);
+                            }
                         } catch (JSONException e) {
                             e.printStackTrace();
                         }
