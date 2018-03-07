@@ -260,9 +260,9 @@ public class BluetoothService {
 
     public class ConnectedThread extends Thread {
 
-        private final BluetoothSocket mmSocket;
-        private final InputStream mmInStream;
-        private final OutputStream mmOutStream;
+        private BluetoothSocket mmSocket;
+        private InputStream mmInStream;
+        private OutputStream mmOutStream;
         private byte[] mmBuffer;
         Boolean running = true;
 
@@ -340,12 +340,14 @@ public class BluetoothService {
         }
 
         private void resetConnection() {
+            Log.d("Bluetooth Stream","Closing");
             if(mmInStream!=null){
                 try {
                     mmInStream.close();
                 } catch (IOException e) {
                     e.printStackTrace();
                 }
+                mmInStream = null;
             }
             if(mmOutStream!=null){
                 try {
@@ -353,6 +355,7 @@ public class BluetoothService {
                 } catch (IOException e) {
                     e.printStackTrace();
                 }
+                mmOutStream = null;
             }
             if(mmSocket!=null){
                 try {
@@ -360,7 +363,9 @@ public class BluetoothService {
                 } catch (IOException e) {
                     e.printStackTrace();
                 }
+                mmSocket = null;
             }
+            Log.d("Bluetoth Stream","Closed");
         }
     }
 

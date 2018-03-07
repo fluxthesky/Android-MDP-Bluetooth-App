@@ -528,12 +528,12 @@ public class MainActivity extends AppCompatActivity {
 
 
         //nexus 7
-        //params.height = 45;
-        //params.width = 53;
+        params.height = 45;
+        params.width = 53;
 
         // v20
-        params.height = 80;
-        params.width = 88;
+        //params.height = 80;
+        //params.width = 88;
 
         grids[i].setLayoutParams(params);
 
