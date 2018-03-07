@@ -264,10 +264,10 @@ public class BluetoothService {
         private final InputStream mmInStream;
         private final OutputStream mmOutStream;
         private byte[] mmBuffer;
+        Boolean running = true;
 
 
         public ConnectedThread(BluetoothSocket socket) {
-
 
             mmSocket = socket;
             InputStream tmpIn = null;
@@ -313,7 +313,7 @@ public class BluetoothService {
             int numBytes;
 
 
-            while(true){
+            while(running){
 
                 try {
                     numBytes = mmInStream.read(mmBuffer);
@@ -328,6 +328,8 @@ public class BluetoothService {
 
                 } catch (IOException e) {
                     e.printStackTrace();
+                    running = false;
+                    resetConnection();
                 }
 
 
@@ -335,6 +337,30 @@ public class BluetoothService {
 
 
 
+        }
+
+        private void resetConnection() {
+            if(mmInStream!=null){
+                try {
+                    mmInStream.close();
+                } catch (IOException e) {
+                    e.printStackTrace();
+                }
+            }
+            if(mmOutStream!=null){
+                try {
+                    mmOutStream.close();
+                } catch (IOException e) {
+                    e.printStackTrace();
+                }
+            }
+            if(mmSocket!=null){
+                try {
+                    mmSocket.close();
+                } catch (IOException e) {
+                    e.printStackTrace();
+                }
+            }
         }
     }
 
