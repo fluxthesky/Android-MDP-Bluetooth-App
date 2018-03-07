@@ -140,9 +140,11 @@ public class MainActivity extends AppCompatActivity {
 
         messageTextView = temp;
 
-        deviceAddress = Constants.HARDWARE_ADDRESS;
+        //deviceAddress = Constants.HARDWARE_ADDRESS;
 
-        //setupBluetooth();
+        deviceAddress = "40:E2:30:C7:30:C8";
+
+        setupBluetooth();
 
         up.setOnClickListener(new View.OnClickListener() {
             @Override

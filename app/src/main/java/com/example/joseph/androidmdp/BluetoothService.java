@@ -365,7 +365,15 @@ public class BluetoothService {
                 }
                 mmSocket = null;
             }
+            connectedThread = null;
+            listenThread = null;
             Log.d("Bluetoth Stream","Closed");
+
+
+            final BluetoothServiceForConnect connectAgain = new BluetoothServiceForConnect();
+            final BluetoothServiceForListen listenAgain = new BluetoothServiceForListen();
+            connectAgain.run();
+            listenAgain.run();
         }
     }
 
