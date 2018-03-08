@@ -129,8 +129,8 @@
             android:id="@+id/statusText"
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
+            android:layout_alignBottom="@+id/map_grid"
             android:layout_alignParentStart="true"
-            android:layout_below="@+id/map_grid"
             android:text="Status:"
             android:textColor="@android:color/black"
             android:textSize="18sp" />
@@ -139,7 +139,8 @@
             android:id="@+id/curStatus"
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
-            android:layout_below="@+id/map_grid"
+            android:layout_alignBaseline="@+id/statusText"
+            android:layout_alignBottom="@+id/statusText"
             android:layout_toEndOf="@+id/statusText"
             android:text="None"
             android:textColor="@android:color/black"
@@ -150,7 +151,7 @@
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
             android:layout_alignParentEnd="true"
-            android:layout_below="@+id/map_grid"
+            android:layout_below="@+id/curStatus"
             android:text="ToggleButton" />
 
         <TextView
@@ -162,14 +163,14 @@
             android:layout_toStartOf="@+id/autoUpdateToggle"
             android:text="Auto Update:"
             android:textColor="@android:color/black"
-            android:textSize="18sp" />
+            android:textSize="15sp" />
 
         <Button
             android:id="@+id/manualUpBtn"
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
-            android:layout_alignParentEnd="true"
-            android:layout_below="@+id/autoUpdateToggle"
+            android:layout_below="@+id/map_grid"
+            android:layout_toEndOf="@+id/up"
             android:text="Update" />
 
 
@@ -177,18 +178,47 @@
             android:id="@+id/robotUpBtn"
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
-            android:layout_alignBottom="@+id/left"
-            android:layout_alignParentStart="true"
+            android:layout_alignParentBottom="true"
+            android:layout_alignStart="@+id/waypointUpBtn"
             android:text="Set Robot" />
 
         <ToggleButton
             android:id="@+id/waypointUpBtn"
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
-            android:layout_alignParentStart="true"
-            android:layout_below="@+id/statusText"
+            android:layout_above="@+id/robotUpBtn"
+            android:layout_toEndOf="@+id/textView4"
             android:text="Set Waypoint" />
 
+        <TextView
+            android:id="@+id/textView3"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:layout_alignBaseline="@+id/robotUpBtn"
+            android:layout_alignBottom="@+id/robotUpBtn"
+            android:layout_alignParentStart="true"
+            android:text="Location"
+            android:textColor="@android:color/black"
+            android:textSize="18sp" />
+
+        <TextView
+            android:id="@+id/textView4"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:layout_alignBaseline="@+id/waypointUpBtn"
+            android:layout_alignBottom="@+id/waypointUpBtn"
+            android:layout_alignParentStart="true"
+            android:text="Waypoints"
+            android:textColor="@android:color/black"
+            android:textSize="18sp" />
+
+        <Button
+            android:id="@+id/startExpBtn"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:layout_alignParentBottom="true"
+            android:layout_alignParentEnd="true"
+            android:text="Start Exploration" />
 
 
     </RelativeLayout>

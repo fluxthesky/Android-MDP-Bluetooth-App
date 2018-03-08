@@ -90,6 +90,7 @@ public class MainActivity extends AppCompatActivity {
     ToggleButton autoUpdateToggle;
     ToggleButton autoUpdateToggleRobot;
     ToggleButton autoUpdateToggleWaypoint;
+    Button startExpBtn;
 
 
 
@@ -121,6 +122,8 @@ public class MainActivity extends AppCompatActivity {
         autoUpdateToggle = (ToggleButton) findViewById(R.id.autoUpdateToggle);
         autoUpdateToggleRobot = (ToggleButton) findViewById(R.id.robotUpBtn);
         autoUpdateToggleWaypoint = (ToggleButton) findViewById(R.id.waypointUpBtn);
+
+        startExpBtn = (Button)findViewById(R.id.startExpBtn);
 
         int[][] data = new int[20][15];
 
@@ -379,6 +382,15 @@ public class MainActivity extends AppCompatActivity {
                 service.write(Constants.ACTION_ROATE_RIGHT.getBytes());
             }
         });
+
+        startExpBtn.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View v) {
+                if(service != null)
+                    curStatus.setText("Exploring");
+                    service.write("#s".getBytes());
+            }
+        });
     }
 
     @Override
@@ -434,6 +446,8 @@ public class MainActivity extends AppCompatActivity {
             public void onCheckedChanged(CompoundButton compoundButton, boolean b) {
                 if(b){
                     setRobot = true;
+                    setWaypoint = false;
+                    autoUpdateToggleWaypoint.setChecked(false);
                 }else{
                     setRobot = false;
                 }
@@ -446,6 +460,8 @@ public class MainActivity extends AppCompatActivity {
             public void onCheckedChanged(CompoundButton compoundButton, boolean b) {
                 if(b){
                     setWaypoint = true;
+                    setRobot = false;
+                    autoUpdateToggleRobot.setChecked(false);
                 }else{
                     setWaypoint = false;
                 }
@@ -465,10 +481,6 @@ public class MainActivity extends AppCompatActivity {
 
 
     public void redrawRobot(){
-
-
-
-
 
     }
 
@@ -600,12 +612,12 @@ public class MainActivity extends AppCompatActivity {
 
 
         //nexus 7
-        //params.height = 45;
-        //params.width = 53;
+        params.height = 45;
+        params.width = 53;
 
         // v20
-        params.height = 80;
-        params.width = 88;
+        //params.height = 80;
+        //params.width = 88;
 
         grids[i].setLayoutParams(params);
 
@@ -660,28 +672,16 @@ public class MainActivity extends AppCompatActivity {
 
         drawRobot();
 
-
-
-
-
     }
 
 
 
 
     public String locationToCoordinate(int location){
-
-
         int x = location/15;
         int y = location%15;
 
         return  "(" + x + "," + y +  ")";
-
-
-
-
-
-
     }
 
 
