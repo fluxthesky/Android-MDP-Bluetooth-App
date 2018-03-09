@@ -15,6 +15,9 @@ import android.os.Handler;
 import android.os.Looper;
 import android.os.Message;
 import android.speech.RecognizerIntent;
+import android.support.annotation.NonNull;
+import android.support.design.widget.NavigationView;
+import android.support.v4.widget.DrawerLayout;
 import android.support.v7.app.AppCompatActivity;
 import android.os.Bundle;
 import android.util.Log;
@@ -49,7 +52,8 @@ import static android.view.ViewGroup.LayoutParams.WRAP_CONTENT;
 public class MainActivity extends AppCompatActivity {
 
 
-
+    DrawerLayout mDrawerLayout;
+    NavigationView mNavigationView;
     BluetoothAdapter mBluetoothAdapter;
     BroadcastReceiver mReceiver;
     String deviceAddress;
@@ -65,6 +69,7 @@ public class MainActivity extends AppCompatActivity {
     int head = robotLocation - 15;
     int robotDirection = Constants.NORTH;
     int oldRobotLocation = -1;
+    Thread t;
     int MDF[] = new int[300];
 
     boolean exploring = false;
@@ -120,6 +125,74 @@ public class MainActivity extends AppCompatActivity {
          right = (ImageButton) findViewById(R.id.right);
         mMap = (Map) findViewById(R.id.map);
         mapLayout = (android.support.v7.widget.GridLayout) findViewById(R.id.map_grid);
+        mDrawerLayout = (DrawerLayout) findViewById(R.id.drawer_layout);
+        mNavigationView = (NavigationView) findViewById(R.id.nav_view);
+
+
+        mNavigationView.setNavigationItemSelectedListener(new NavigationView.OnNavigationItemSelectedListener() {
+            @Override
+            public boolean onNavigationItemSelected(@NonNull MenuItem item) {
+
+                switch (item.getItemId()){
+
+
+                    case R.id.set_waypoint:
+                        if(!item.isChecked()){
+                            item.setChecked(true);
+
+                            setWaypoint = true;
+                            setRobot = false;
+                            autoUpdateToggleRobot.setChecked(false);
+                        }else{
+                            setWaypoint = false;
+                            item.setChecked(false);
+                        }
+                        break;
+                    case R.id.set_robot:
+                        if(!item.isChecked()){
+                            item.setChecked(true);
+
+                            setRobot = true;
+                            setWaypoint = false;
+                            autoUpdateToggleWaypoint.setChecked(false);
+                        }else{
+                            setRobot = false;
+                            item.setChecked(false);
+
+                        }
+                        break;
+
+                    case R.id.auto_update:
+                        if(!item.isChecked()){
+                            item.setChecked(true);
+                            manualUpBtn.setVisibility(View.GONE);
+                            autoUpdate = true;
+                            if(!t.isAlive())
+                                t.start();
+                        }else{
+                            manualUpBtn.setVisibility(View.VISIBLE);
+                            autoUpdate = false;
+                            item.setChecked(false);
+
+                        }
+                        break;
+
+                    case R.id.start_exploration:
+                        item.setChecked(false);
+                        startExploration();
+                        break;
+
+
+
+
+                }
+
+                 mDrawerLayout.closeDrawers();
+
+                return true;
+            }
+        });
+
 
         Rectangle rect = new Rectangle(this);
         grids = new ImageView[300];
@@ -421,7 +494,7 @@ public class MainActivity extends AppCompatActivity {
     }
 
     public void initializeAutoUpdate(){
-        final Thread t = new Thread(){
+         t = new Thread(){
             @Override
             public void run(){
                 while(!isInterrupted()){
@@ -650,7 +723,7 @@ public class MainActivity extends AppCompatActivity {
         });
         grids[i] = btn;
         grids[i].setBackgroundColor(Color.WHITE);
-        grids[i].setImageResource(R.drawable.square_cell);
+        grids[i].setImageResource(R.layout.rectangle);
 
         GridLayout.LayoutParams params = new GridLayout.LayoutParams();
 
@@ -712,6 +785,9 @@ public class MainActivity extends AppCompatActivity {
     }
 
     public void updateRobot(String s){
+
+
+        Log.i("AndroidMDP" , "Update robot called");
 
 
         if(oldRobotLocation == -1){
@@ -1076,32 +1152,51 @@ public class MainActivity extends AppCompatActivity {
             ArrayList<String> matches = data.getStringArrayListExtra(
                     RecognizerIntent.EXTRA_RESULTS);
 
-            if(matches.contains("start exploration")){
+            if(matches.contains("start exploration") || matches.contains("explore")){
 
                 startExploration();
 
             }
-            else if(matches.contains("move forward")){
+            else if(matches.contains("move forward") || matches.contains("forward")){
 
 
                 up.performClick();
 
             }
-            else if(matches.contains("rotate left")){
+            else if(matches.contains("rotate left") || matches.contains("left")){
 
 
                 left.performClick();
 
             }
-            else if(matches.contains("rotate right")){
+            else if(matches.contains("rotate right") || matches.contains("right")){
 
                 right.performClick();
 
             }
-            else if(matches.contains("move back")){
+            else if(matches.contains("move back") || matches.contains("back") || matches.contains("reverse")){
 
                 down.performClick();
 
+            }
+            for(int i = 0;i<20;i++){
+                if(matches.contains("move forward "+i+" times") || matches.contains("forward "+i+" times")){
+                    for(int j=i;j>0;j--){
+                        up.performClick();
+                    }
+                }else if(matches.contains("move back "+i+" times") || matches.contains("back "+i+" times") || matches.contains("reverse "+i+" times")){
+                    for(int j=i;j>0;j--){
+                        down.performClick();
+                    }
+                }else if(matches.contains("rotate right "+i+" times") || matches.contains("right "+i+" times")){
+                    for(int j=i;j>0;j--){
+                        right.performClick();
+                    }
+                }else if(matches.contains("rotate left "+i+" times") || matches.contains("left "+i+" times")){
+                    for(int j=i;j>0;j--){
+                        left.performClick();
+                    }
+                }
             }
 
 
@@ -1161,6 +1256,18 @@ public class MainActivity extends AppCompatActivity {
 
         binary = binary.substring(211,binary.length()-1);*/
 
+
+        for(int i = 0 ; i <MDF.length; i++){
+
+            if(MDF[i] == 1){
+                grids[i].setBackgroundColor(Color.WHITE);
+            }
+
+        }
+
+
+
+
         for (int i = 0 ; i < binary.length() ; i++){
             char c = binary.charAt(i);
             if(c == '1'){
@@ -1173,10 +1280,13 @@ public class MainActivity extends AppCompatActivity {
 
                 MDF[i] = 0;
 
+
             }
         }
 
         updateMap(data);
+//        setupMap();
+  //      drawRobot();
     }
 
     private void turnLeft(){
@@ -1260,7 +1370,7 @@ public class MainActivity extends AppCompatActivity {
 
         }
 
- 
+
         // receiving message from connected bluetooth device
         Handler mHandler = new Handler(Looper.getMainLooper()){
             @Override

@@ -1,0 +1,17 @@
+<?xml version="1.0" encoding="utf-8"?>
+<menu xmlns:android="http://schemas.android.com/apk/res/android" >
+    <group android:checkableBehavior="single">
+        <item
+            android:id="@+id/set_waypoint"
+            android:title="Set Waypoint" />
+        <item
+            android:id="@+id/set_robot"
+            android:title="Set Robot" />
+        <item
+            android:id="@+id/auto_update"
+            android:title="Auto Update" />
+        <item
+            android:id="@+id/start_exploration"
+            android:title="Start Exploration" />
+    </group>
+</menu>
