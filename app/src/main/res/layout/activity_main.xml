@@ -118,7 +118,7 @@
                     android:layout_marginLeft="0dp"
                     android:layout_marginTop="0dp"
                     android:layout_width="match_parent"
-                    android:layout_height="wrap_content"
+                    android:layout_height="match_parent"
                     android:layout_above="@id/up"
                     android:layout_centerHorizontal="true"
                     android:layout_centerInParent="true"
@@ -176,9 +176,11 @@
 
         <ToggleButton
             android:id="@+id/robotUpBtn"
+            android:textOff="Set Robot"
+            android:textOn="Set Robot"
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
-            android:layout_alignParentBottom="true"
+            android:layout_alignBottom="@+id/left"
             android:layout_alignStart="@+id/waypointUpBtn"
             android:text="Set Robot" />
 
@@ -187,11 +189,14 @@
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
             android:layout_above="@+id/robotUpBtn"
-            android:layout_toEndOf="@+id/textView4"
-            android:text="Set Waypoint" />
+            android:layout_alignParentStart="true"
+            android:text="Set Waypoint"
+            android:textOff="Set WP"
+            android:textOn="Set W" />
 
         <TextView
             android:id="@+id/textView3"
+            android:visibility="invisible"
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
             android:layout_alignBaseline="@+id/robotUpBtn"
@@ -203,6 +208,7 @@
 
         <TextView
             android:id="@+id/textView4"
+            android:visibility="invisible"
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
             android:layout_alignBaseline="@+id/waypointUpBtn"
@@ -216,8 +222,9 @@
             android:id="@+id/startExpBtn"
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
-            android:layout_alignParentBottom="true"
-            android:layout_alignParentEnd="true"
+            android:layout_alignBottom="@+id/right"
+            android:layout_marginStart="14dp"
+            android:layout_toEndOf="@+id/right"
             android:text="Start Exploration" />
 
 

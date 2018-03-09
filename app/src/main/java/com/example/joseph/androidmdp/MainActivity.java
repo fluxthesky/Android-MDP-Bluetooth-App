@@ -14,6 +14,7 @@ import android.graphics.Color;
 import android.os.Handler;
 import android.os.Looper;
 import android.os.Message;
+import android.speech.RecognizerIntent;
 import android.support.v7.app.AppCompatActivity;
 import android.os.Bundle;
 import android.util.Log;
@@ -66,9 +67,12 @@ public class MainActivity extends AppCompatActivity {
     int oldRobotLocation = -1;
     int MDF[] = new int[300];
 
+    boolean exploring = false;
+
 
     int waypoint = 0;
 
+    boolean once = true;
 
 
 
@@ -97,6 +101,10 @@ public class MainActivity extends AppCompatActivity {
     String currentLocation = "000000000000000000000000000000000000000000000000000000000000000000000000000" , currentStatus;
 
 
+    ImageButton up;
+    ImageButton down;
+    ImageButton left;
+    ImageButton right;
 
     Thread autoUpdateThread;
 
@@ -106,10 +114,10 @@ public class MainActivity extends AppCompatActivity {
         setContentView(R.layout.activity_main);
 
         TextView temp = (TextView) findViewById(R.id.chatBox);
-        ImageButton up = (ImageButton) findViewById(R.id.up);
-        ImageButton down = (ImageButton) findViewById(R.id.down);
-        ImageButton left = (ImageButton) findViewById(R.id.left);
-        ImageButton right = (ImageButton) findViewById(R.id.right);
+         up = (ImageButton) findViewById(R.id.up);
+         down = (ImageButton) findViewById(R.id.down);
+         left = (ImageButton) findViewById(R.id.left);
+         right = (ImageButton) findViewById(R.id.right);
         mMap = (Map) findViewById(R.id.map);
         mapLayout = (android.support.v7.widget.GridLayout) findViewById(R.id.map_grid);
 
@@ -138,7 +146,7 @@ public class MainActivity extends AppCompatActivity {
 
         updateMap(data);
 
-        setupMap();
+       // setupMap();
 
         IntentFilter filter1 = new IntentFilter(BluetoothAdapter.ACTION_STATE_CHANGED);
 
@@ -181,9 +189,9 @@ public class MainActivity extends AppCompatActivity {
 
         messageTextView = temp;
 
-        //deviceAddress = Constants.HARDWARE_ADDRESS;
+        deviceAddress = Constants.HARDWARE_ADDRESS;
 
-        deviceAddress = "40:E2:30:C7:30:C8";
+       // deviceAddress = "40:E2:30:C7:30:C8";
 
         setupBluetooth();
 
@@ -386,12 +394,23 @@ public class MainActivity extends AppCompatActivity {
         startExpBtn.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
-                if(service != null)
-                    curStatus.setText("Exploring");
-                    service.write("#s".getBytes());
+                startExploration();
             }
         });
     }
+
+
+    private void startVoiceRecognitionActivity() {
+        Intent intent = new Intent(RecognizerIntent.ACTION_RECOGNIZE_SPEECH);
+        //uses free form text input
+        intent.putExtra(RecognizerIntent.EXTRA_LANGUAGE_MODEL,
+                RecognizerIntent.LANGUAGE_MODEL_FREE_FORM);
+        //Puts a customized message to the prompt
+
+        startActivityForResult(intent, 123);
+    }
+
+
 
     @Override
     protected void onDestroy() {
@@ -407,11 +426,11 @@ public class MainActivity extends AppCompatActivity {
             public void run(){
                 while(!isInterrupted()){
                     try{
-                        Thread.sleep(500);
+                        Thread.sleep(2000);
                         runOnUiThread(new Runnable() {
                             @Override
                             public void run() {
-                                if(autoUpdate) {
+                                if(autoUpdate && !exploring) {
                                    // setLocationDataHex(currentLocation);
                                     setRobotStatus(currentStatus);
                                    // drawRobot();
@@ -524,8 +543,27 @@ public class MainActivity extends AppCompatActivity {
     @Override
     protected void onStart() {
         super.onStart();
+
+       // setupMap();
+
     }
 
+
+    public void startExploration(){
+
+
+        if(service != null) {
+            service.write("#s".getBytes());
+            curStatus.setText("Exploring");
+            exploring = true;
+        }else{
+
+            Toast.makeText(this, "Start exploration failed!", Toast.LENGTH_SHORT).show();
+
+
+        }
+
+    }
 
 
     public void setupMap(){
@@ -602,6 +640,14 @@ public class MainActivity extends AppCompatActivity {
 
             }
         });
+
+        btn.setOnLongClickListener(new View.OnLongClickListener() {
+            @Override
+            public boolean onLongClick(View v) {
+                startVoiceRecognitionActivity();
+                return false;
+            }
+        });
         grids[i] = btn;
         grids[i].setBackgroundColor(Color.WHITE);
         grids[i].setImageResource(R.drawable.square_cell);
@@ -612,12 +658,25 @@ public class MainActivity extends AppCompatActivity {
 
 
         //nexus 7
-        params.height = 45;
-        params.width = 53;
+        //params.height = 45;
+        //params.width
+            //
+            // v20
 
-        // v20
-        //params.height = 80;
-        //params.width = 88;
+
+        int w = mapLayout.getWidth();
+        int h = mapLayout.getHeight();
+
+            params.height = h / 20;
+            params.width = w / 15;
+       // Log.i("AndroidMDP" , String.valueOf(w)  + " value " + String.valueOf(h));
+
+
+
+
+
+
+
 
         grids[i].setLayoutParams(params);
 
@@ -1012,6 +1071,49 @@ public class MainActivity extends AppCompatActivity {
     protected void onActivityResult(int requestCode, int resultCode, Intent data) {
 
 
+        if (requestCode == 123 && resultCode == RESULT_OK) {
+            // Fill the list view with the strings the recognizer thought it could have heard
+            ArrayList<String> matches = data.getStringArrayListExtra(
+                    RecognizerIntent.EXTRA_RESULTS);
+
+            if(matches.contains("start exploration")){
+
+                startExploration();
+
+            }
+            else if(matches.contains("move forward")){
+
+
+                up.performClick();
+
+            }
+            else if(matches.contains("rotate left")){
+
+
+                left.performClick();
+
+            }
+            else if(matches.contains("rotate right")){
+
+                right.performClick();
+
+            }
+            else if(matches.contains("move back")){
+
+                down.performClick();
+
+            }
+
+
+
+
+
+
+            //Turn on or off bluetooth here
+        } else {
+            super.onActivityResult(requestCode, resultCode, data);
+        }
+
         if (requestCode == Constants.ACTIVITY_RESULTS) {
             if(resultCode == Activity.RESULT_OK){
                 String result=data.getStringExtra(Constants.DEVICE_ADDRESS);
@@ -1120,6 +1222,23 @@ public class MainActivity extends AppCompatActivity {
         }
     }
 
+    @Override
+    public void onWindowFocusChanged(boolean hasFocus) {
+        super.onWindowFocusChanged(hasFocus);
+
+
+
+        if(once) {
+            int w = mapLayout.getWidth();
+            int h = mapLayout.getHeight();
+            Log.i("AndroidMDP" , String.valueOf(w)  + " value onWindowFocus " + String.valueOf(h));
+
+            setupMap();
+        }
+        once = false;
+
+
+    }
 
     private void setupBluetooth(){
         //ask if bluetooth is enabled
@@ -1131,11 +1250,17 @@ public class MainActivity extends AppCompatActivity {
 
 
 
-        //make device discoverable
-        Intent discoverableIntent = new Intent(BluetoothAdapter.ACTION_REQUEST_DISCOVERABLE);
-        discoverableIntent.putExtra(BluetoothAdapter.EXTRA_DISCOVERABLE_DURATION, 300);
-        startActivity(discoverableIntent);
+        if (mBluetoothAdapter.getScanMode() != BluetoothAdapter.SCAN_MODE_CONNECTABLE_DISCOVERABLE){
 
+
+
+            Intent discoverableIntent = new Intent(BluetoothAdapter.ACTION_REQUEST_DISCOVERABLE);
+            discoverableIntent.putExtra(BluetoothAdapter.EXTRA_DISCOVERABLE_DURATION, 300);
+            startActivity(discoverableIntent);
+
+        }
+
+ 
         // receiving message from connected bluetooth device
         Handler mHandler = new Handler(Looper.getMainLooper()){
             @Override
@@ -1247,6 +1372,7 @@ public class MainActivity extends AppCompatActivity {
     }
 
     private void setRobotStatus(String s) {
+        exploring=false;
         switch(s){
             case "exploring":
                 curStatus.setText("Exploring");
