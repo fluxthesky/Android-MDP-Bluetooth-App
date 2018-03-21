@@ -6,7 +6,6 @@ import android.bluetooth.BluetoothAdapter;
 import android.bluetooth.BluetoothDevice;
 import android.content.BroadcastReceiver;
 import android.content.Context;
-import android.content.DialogInterface;
 import android.content.Intent;
 import android.content.IntentFilter;
 import android.content.SharedPreferences;
@@ -22,20 +21,16 @@ import android.support.v7.app.AppCompatActivity;
 import android.os.Bundle;
 import android.util.Log;
 import android.view.Gravity;
-import android.view.KeyEvent;
 import android.view.Menu;
 import android.view.MenuInflater;
 import android.view.MenuItem;
 import android.view.View;
-import android.view.ViewGroup;
 import android.widget.Button;
 import android.widget.CompoundButton;
 import android.widget.EditText;
 import android.widget.GridLayout;
-import android.widget.GridView;
 import android.widget.ImageButton;
 import android.widget.ImageView;
-import android.widget.LinearLayout;
 import android.widget.TextView;
 import android.widget.Toast;
 import android.widget.ToggleButton;
@@ -46,8 +41,6 @@ import org.json.JSONObject;
 import java.io.UnsupportedEncodingException;
 import java.util.ArrayList;
 import java.util.Set;
-
-import static android.view.ViewGroup.LayoutParams.WRAP_CONTENT;
 
 public class MainActivity extends AppCompatActivity {
 
@@ -89,7 +82,7 @@ public class MainActivity extends AppCompatActivity {
     ArrayList<Integer> exploredRobotHistory = new ArrayList<Integer>();
 
 
-    boolean autoUpdate = false;
+    boolean autoUpdate = true;
     boolean setRobot = false;
     boolean setWaypoint = false;
 
@@ -103,7 +96,7 @@ public class MainActivity extends AppCompatActivity {
 
 
 
-    String currentLocation = "000000000000000000000000000000000000000000000000000000000000000000000000000" , currentStatus;
+    String mapMDF = Constants.BLANK_MAP , currentStatus;
 
 
     ImageButton up;
@@ -182,6 +175,10 @@ public class MainActivity extends AppCompatActivity {
                         startExploration();
                         break;
 
+                    case R.id.clear_map:
+                        setLocationDataHex(Constants.BLANK_MAP);
+                        break;
+
 
 
 
@@ -200,6 +197,7 @@ public class MainActivity extends AppCompatActivity {
         curStatus = (TextView)findViewById(R.id.curStatus);
 
         manualUpBtn = (Button) findViewById(R.id.manualUpBtn);
+        manualUpBtn.setVisibility(View.GONE);
         autoUpdateToggle = (ToggleButton) findViewById(R.id.autoUpdateToggle);
         autoUpdateToggleRobot = (ToggleButton) findViewById(R.id.robotUpBtn);
         autoUpdateToggleWaypoint = (ToggleButton) findViewById(R.id.waypointUpBtn);
@@ -504,7 +502,7 @@ public class MainActivity extends AppCompatActivity {
                             @Override
                             public void run() {
                                 if(autoUpdate && !exploring) {
-                                   // setLocationDataHex(currentLocation);
+                                   // setLocationDataHex(mapMDF);
                                     setRobotStatus(currentStatus);
                                    // drawRobot();
                                 }
@@ -517,7 +515,8 @@ public class MainActivity extends AppCompatActivity {
             }
         };
 
-        currentLocation = currentStatus = "";
+       // mapMDF = currentStatus = "";
+        currentStatus = "";
         autoUpdateToggle.setOnCheckedChangeListener(new CompoundButton.OnCheckedChangeListener() {
             @Override
             public void onCheckedChanged(CompoundButton compoundButton, boolean b) {
@@ -565,7 +564,7 @@ public class MainActivity extends AppCompatActivity {
             public void onClick(View v) {
                 drawRobot();
 
-                setLocationDataHex(currentLocation);
+                setLocationDataHex(mapMDF);
                 setRobotStatus(currentStatus);
              }
         });
@@ -602,7 +601,7 @@ public class MainActivity extends AppCompatActivity {
         grids[256].setBackgroundColor(Color.GRAY);
         grids[257].setBackgroundColor(Color.GRAY);
 
-        setLocationDataHex(currentLocation);
+        setLocationDataHex(mapMDF);
 
 
     }
@@ -694,7 +693,8 @@ public class MainActivity extends AppCompatActivity {
 
                     waypoint = k;
                     grids[waypoint].setBackgroundColor(Color.YELLOW);
-                    String s = "coordinate " + locationToCoordinate(waypoint);
+                    String s = "#coordinate " + locationToCoordinate(waypoint);
+                    Log.i("AndroidMDP" , s);
                     if(service != null)
                     service.write(s.getBytes());
 
@@ -784,6 +784,43 @@ public class MainActivity extends AppCompatActivity {
 
     }
 
+
+
+    public void updateRobot2(String s){
+
+        int x = Integer.valueOf(s.substring(0,s.indexOf(",")));
+        int y = Integer.valueOf(s.substring(s.indexOf(",")+1  , s.lastIndexOf(",")) );
+
+
+        int direction = Integer.valueOf(s.substring(s.lastIndexOf(",")+1));
+
+        Log.i("AndroidMDP" , String.valueOf(x) + " " + String.valueOf(y) + " " + String.valueOf(direction));
+
+
+        y = 19 - y;
+        int location =  ( y * 15 ) + x;
+
+        if(oldRobotLocation == -1){
+
+            robotLocation = location;
+            oldRobotLocation = robotLocation;
+
+
+        }
+
+        else {
+            oldRobotLocation = robotLocation;
+            robotLocation = location;
+        }
+        robotDirection = direction;
+        robotHistory.add(oldRobotLocation);
+
+        drawRobot();
+
+
+    }
+
+
     public void updateRobot(String s){
 
 
@@ -815,8 +852,10 @@ public class MainActivity extends AppCompatActivity {
     public String locationToCoordinate(int location){
         int x = location/15;
         int y = location%15;
+        x = 19 - x;
 
-        return  "(" + x + "," + y +  ")";
+
+        return  "(" + y + "," + x +  ")";
     }
 
 
@@ -1018,6 +1057,9 @@ public class MainActivity extends AppCompatActivity {
          }
 
     }
+
+
+
 
     public void updateRobotLocation(int i , int direction){
 
@@ -1429,7 +1471,7 @@ public class MainActivity extends AppCompatActivity {
                             Log.i("AndroidMAP" , "s is " + s);
                        /* s = s.substring(s.indexOf(":")+1, s.length());
                         s = s.substring(0 , s.indexOf("/") );*/
-                            currentLocation = s;
+                            mapMDF = s;
 
                             if(autoUpdate) {
                                 setLocationDataHex(s);
@@ -1450,7 +1492,7 @@ public class MainActivity extends AppCompatActivity {
 
                        s = s.substring(s.indexOf(":")+1, s.length());
                         s = s.substring(0 , s.indexOf("/") );
-                                currentLocation = s;
+                                mapMDF = s;
 
                                 if(autoUpdate) {
                                     setLocationDataHex(s);
@@ -1466,6 +1508,17 @@ public class MainActivity extends AppCompatActivity {
                         s = s.toLowerCase();
                         currentStatus = s;
                     }
+
+
+                    if(s.startsWith("#setrobot:")){
+
+                        s = s.substring(s.indexOf(":")+1, s.length()-1);
+                        s = s.substring(0 , s.indexOf("/") );
+                        updateRobot2(s);
+
+                    }
+
+
                     if(s.startsWith("#robotlocation:")){
                         s = s.substring(s.indexOf(":")+1, s.length()-1);
                         s = s.substring(0 , s.indexOf("/") );

@@ -13,5 +13,9 @@
         <item
             android:id="@+id/start_exploration"
             android:title="Start Exploration" />
+        <item
+            android:id="@+id/clear_map"
+            android:title="Clear Map" />
     </group>
+
 </menu>
