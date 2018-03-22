@@ -9,6 +9,14 @@
 
         <item android:id="@+id/manual_input"
             android:title="Transmit a string to device" />
+
+
+        <item android:id="@+id/configure_hardware_device"
+            android:title="Set auto connect device address" />
+
+
+        <item android:id="@+id/view_incoming_messages"
+            android:title="View incoming messages" />
     </menu>
 </item>
 </menu>

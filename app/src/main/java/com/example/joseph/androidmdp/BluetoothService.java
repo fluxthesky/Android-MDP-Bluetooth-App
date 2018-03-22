@@ -367,6 +367,7 @@ public class BluetoothService {
             while(running){
 
                 try {
+
                     numBytes = mmInStream.read(mmBuffer);
                     Message msg = new Message();
                     Bundle bun = new Bundle();

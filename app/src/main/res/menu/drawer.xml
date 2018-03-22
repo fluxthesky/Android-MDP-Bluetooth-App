@@ -16,6 +16,10 @@
         <item
             android:id="@+id/clear_map"
             android:title="Clear Map" />
+
+        <item
+            android:id="@+id/fastest_path"
+            android:title="Fastest Path" />
     </group>
 
 </menu>

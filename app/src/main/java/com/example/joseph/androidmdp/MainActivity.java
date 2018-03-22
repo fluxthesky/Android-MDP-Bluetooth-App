@@ -6,6 +6,7 @@ import android.bluetooth.BluetoothAdapter;
 import android.bluetooth.BluetoothDevice;
 import android.content.BroadcastReceiver;
 import android.content.Context;
+import android.content.DialogInterface;
 import android.content.Intent;
 import android.content.IntentFilter;
 import android.content.SharedPreferences;
@@ -17,8 +18,10 @@ import android.speech.RecognizerIntent;
 import android.support.annotation.NonNull;
 import android.support.design.widget.NavigationView;
 import android.support.v4.widget.DrawerLayout;
+import android.support.v7.app.ActionBar;
 import android.support.v7.app.AppCompatActivity;
 import android.os.Bundle;
+import android.support.v7.widget.Toolbar;
 import android.util.Log;
 import android.view.Gravity;
 import android.view.Menu;
@@ -42,6 +45,8 @@ import java.io.UnsupportedEncodingException;
 import java.util.ArrayList;
 import java.util.Set;
 
+import static android.content.DialogInterface.*;
+
 public class MainActivity extends AppCompatActivity {
 
 
@@ -64,6 +69,9 @@ public class MainActivity extends AppCompatActivity {
     int oldRobotLocation = -1;
     Thread t;
     int MDF[] = new int[300];
+    IncomingMessageDialog icd;
+
+
 
     boolean exploring = false;
 
@@ -121,6 +129,10 @@ public class MainActivity extends AppCompatActivity {
         mDrawerLayout = (DrawerLayout) findViewById(R.id.drawer_layout);
         mNavigationView = (NavigationView) findViewById(R.id.nav_view);
 
+        icd = new IncomingMessageDialog(this);
+
+
+
 
         mNavigationView.setNavigationItemSelectedListener(new NavigationView.OnNavigationItemSelectedListener() {
             @Override
@@ -177,6 +189,10 @@ public class MainActivity extends AppCompatActivity {
 
                     case R.id.clear_map:
                         setLocationDataHex(Constants.BLANK_MAP);
+                        break;
+
+                    case R.id.fastest_path:
+                        item.setChecked(false);
                         break;
 
 
@@ -260,7 +276,9 @@ public class MainActivity extends AppCompatActivity {
 
         messageTextView = temp;
 
-        deviceAddress = Constants.HARDWARE_ADDRESS;
+        deviceAddress = getDeviceAddress();
+
+       // deviceAddress = Constants.HARDWARE_ADDRESS;
 
        // deviceAddress = "40:E2:30:C7:30:C8";
 
@@ -273,7 +291,7 @@ public class MainActivity extends AppCompatActivity {
               /*  moveForward();
                 drawRobot();
                 robotLocation -= 15;*/
-              oldRobotLocation = robotLocation;
+            /*  oldRobotLocation = robotLocation;
               robotHistory.add(oldRobotLocation);
 
                 switch (robotDirection){
@@ -321,7 +339,7 @@ public class MainActivity extends AppCompatActivity {
                 if(autoUpdate) {
                     drawRobot();
                     setRobotStatus("moving forward");
-                }
+                }*/
                 if(service != null)
                 service.write(Constants.ACTION_FORWARD.getBytes());
 
@@ -335,7 +353,7 @@ public class MainActivity extends AppCompatActivity {
                 robotLocation += 15; */
 
 
-                oldRobotLocation = robotLocation;
+           /*     oldRobotLocation = robotLocation;
 
                 robotHistory.add(oldRobotLocation);
 
@@ -385,7 +403,7 @@ public class MainActivity extends AppCompatActivity {
                     drawRobot();
                     setRobotStatus("reversing");
                 }
-
+*/
 
                 if(service != null)
                 service.write(Constants.ACTION_REVERSE.getBytes());
@@ -399,7 +417,7 @@ public class MainActivity extends AppCompatActivity {
               /*  turnLeft();
                 drawRobot();
                 robotLocation -= 1;*/
-
+/*
               switch (robotDirection){
 
                   case Constants.NORTH:
@@ -422,6 +440,8 @@ public class MainActivity extends AppCompatActivity {
                   setRobotStatus("turning left");
               }
 
+              */
+
                if(service != null)
                 service.write(Constants.ACTION_ROATE_LEFT.getBytes());
 
@@ -435,7 +455,7 @@ public class MainActivity extends AppCompatActivity {
                 robotLocation += 1;
 
 */
-
+/*
                 switch (robotDirection){
 
                     case Constants.NORTH:
@@ -457,6 +477,8 @@ public class MainActivity extends AppCompatActivity {
                     drawRobot();
                     setRobotStatus("turning right");
                 }
+
+                */
                 if(service != null)
                 service.write(Constants.ACTION_ROATE_RIGHT.getBytes());
             }
@@ -620,12 +642,32 @@ public class MainActivity extends AppCompatActivity {
 
     }
 
+    public void startFastestPathExploration(){
+
+        {
+
+
+            if(service != null) {
+                service.write("#sfp".getBytes());
+                curStatus.setText("Exploring");
+                exploring = true;
+            }else{
+
+                Toast.makeText(this, "Start fastest path exploration failed!", Toast.LENGTH_SHORT).show();
+
+
+            }
+
+        }
+    }
+
+
 
     public void startExploration(){
 
 
         if(service != null) {
-            service.write("#s".getBytes());
+            service.write("#se".getBytes());
             curStatus.setText("Exploring");
             exploring = true;
         }else{
@@ -778,6 +820,8 @@ public class MainActivity extends AppCompatActivity {
         grids[257].setBackgroundColor(Color.GRAY);
 
         robotDirection = Constants.NORTH;
+
+
         oldRobotLocation = 144;
         robotLocation = 144;
         drawRobot();
@@ -1139,6 +1183,18 @@ public class MainActivity extends AppCompatActivity {
                 manualInput();
                 break;
 
+
+            case R.id.configure_hardware_device:
+                configureDeviceAddres();
+                break;
+
+            case R.id.view_incoming_messages:
+                icd.showDialog();
+                break;
+
+
+
+
             default:
                 return super.onOptionsItemSelected(item);
 
@@ -1148,6 +1204,68 @@ public class MainActivity extends AppCompatActivity {
 
 
     }
+
+
+    private void showReceivedData(){
+
+
+    }
+
+
+    private void configureDeviceAddres(){
+
+
+
+        AlertDialog.Builder builder = new AlertDialog.Builder(this);
+        builder.setTitle("Manual input");
+
+       /* View view = getLayoutInflater().inflate(R.layout.my_alert_dialog,null);
+
+        Button sendBtn = (Button)view.findViewById(R.id.sendBtn);
+        Button saveBtn = (Button)view.findViewById(R.id.saveBtn);
+        final EditText mEditText = (EditText)view.findViewById(R.id.mEditText);
+
+        sendBtn.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View v) {
+                service.write(getString().toString().getBytes());
+            }
+        });
+
+        saveBtn.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View v) {
+                storeString(mEditText.getText().toString());
+            }
+        });
+        mEditText.setText(getString());
+        builder.setView(view);*/
+
+
+
+
+       final EditText mEditText = new EditText(this);
+       mEditText.setText(getDeviceAddress());
+
+
+
+
+        builder.setPositiveButton("OK", new OnClickListener() {
+            @Override
+            public void onClick(DialogInterface dialog, int which) {
+
+                storeDeviceAddress(mEditText.getText().toString());
+
+            }
+        });
+        builder.setView(mEditText);
+        AlertDialog dialog = builder.create();
+        dialog.show();
+    }
+
+
+
+
 
     private void manualInput(){
 
@@ -1381,6 +1499,9 @@ public class MainActivity extends AppCompatActivity {
 
 
         if(once) {
+
+
+
             int w = mapLayout.getWidth();
             int h = mapLayout.getHeight();
             Log.i("AndroidMDP" , String.valueOf(w)  + " value onWindowFocus " + String.valueOf(h));
@@ -1433,6 +1554,7 @@ public class MainActivity extends AppCompatActivity {
                     }
                     messageTextView.append(ss);
                     Log.i("AndroidMDP" ,ss);
+                    icd.setMessage(ss);
 
                     String s = new String(bytes);
                     if(s.startsWith("#update:")){
@@ -1483,7 +1605,7 @@ public class MainActivity extends AppCompatActivity {
 
                     }
 
-                    if(s.startsWith("#mdf:")){
+                    if(s.startsWith("#mdf2:")){
 
 
                         {
@@ -1565,11 +1687,29 @@ public class MainActivity extends AppCompatActivity {
         Toast.makeText(this, stuff ,Toast.LENGTH_SHORT).show();
     }
 
+
+    private void storeDeviceAddress(String mString){
+        SharedPreferences mSharedPreferences = getSharedPreferences("buttonString", MODE_PRIVATE);
+        SharedPreferences.Editor mEditor = mSharedPreferences.edit();
+        mEditor.putString("hardware_address", mString);
+        mEditor.apply();
+    }
+
+
+
     private void storeString(String mString){
         SharedPreferences mSharedPreferences = getSharedPreferences("buttonString", MODE_PRIVATE);
         SharedPreferences.Editor mEditor = mSharedPreferences.edit();
         mEditor.putString("mString", mString);
         mEditor.apply();
+    }
+
+    private String getDeviceAddress(){
+
+
+        SharedPreferences mSharedPreferences = getSharedPreferences("buttonString",MODE_PRIVATE);
+        String mSavedString = mSharedPreferences.getString("hardware_address",Constants.HARDWARE_ADDRESS);
+        return mSavedString;
     }
 
     private String getString(){
