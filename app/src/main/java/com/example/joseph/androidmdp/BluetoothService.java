@@ -29,6 +29,8 @@ public class BluetoothService {
 
 
     private UUID MY_UUID  = UUID.fromString("000001101-0000-1000-8000-00805F9B34FB");
+   // private UUID MY_UUID  = UUID.fromString("00001112-0000-1000-8000-00805F9B34FB");
+
     Context context;
     Handler handler;
     BluetoothAdapter mBluetoothAdapter;
@@ -100,7 +102,7 @@ public class BluetoothService {
 
             try {
 
-                tmp = mBluetoothAdapter.listenUsingRfcommWithServiceRecord("BLUETOOTH_SERVICE_MDP", MY_UUID);
+                tmp = mBluetoothAdapter.listenUsingInsecureRfcommWithServiceRecord("BLUETOOTH_SERVICE_MDP", MY_UUID);
 
 
 
@@ -173,6 +175,8 @@ public class BluetoothService {
         final BluetoothDevice mmDevice;
         BluetoothDevice tmpDevice;
 
+
+
         BluetoothSocket  tmp2 = null;
 
 
@@ -193,7 +197,7 @@ public class BluetoothService {
             try {
 
                 if(deviceAddress.equals("1") != true) {
-                    tmp2 = tmpDevice.createRfcommSocketToServiceRecord(MY_UUID);
+                    tmp2 = tmpDevice.createInsecureRfcommSocketToServiceRecord(MY_UUID);
                 }
 
 
@@ -213,6 +217,9 @@ public class BluetoothService {
 
         @Override
         public void run() {
+
+
+
 
 
             if(deviceAddress.equals("1") != true) {
@@ -375,6 +382,7 @@ public class BluetoothService {
                     msg.setData(bun);
 
                     handler.sendMessage(msg);
+                    mmBuffer = new byte[1024];
 
 
 
