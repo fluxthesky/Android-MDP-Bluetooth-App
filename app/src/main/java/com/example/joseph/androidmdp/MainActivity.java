@@ -72,6 +72,8 @@ public class MainActivity extends AppCompatActivity {
     IncomingMessageDialog icd;
 
 
+    String testString = "F8007000E00000000000000000000000000000000000000000000000000000000007000E001F";
+
 
     boolean exploring = false;
 
@@ -749,6 +751,8 @@ public class MainActivity extends AppCompatActivity {
 
 
 
+
+
                 }
 
 
@@ -1408,11 +1412,51 @@ public class MainActivity extends AppCompatActivity {
 
     }
 
+    private String convertMDFFormat(String hex){
+
+
+
+        String hex1 = hex.substring(0,15);
+        String hex2 = hex.substring(15,30);
+        String hex3 = hex.substring(30,45);
+        String hex4 = hex.substring(45,60);
+        String hex5 = hex.substring(60,75);
+        String hex6 = hex.substring(75,90);
+        String hex7 = hex.substring(90,105);
+        String hex8 = hex.substring(105,120);
+        String hex9 = hex.substring(120,135);
+        String hex10 = hex.substring(135,150);
+        String hex11 = hex.substring(150,165);
+        String hex12 = hex.substring(165,180);
+        String hex13 = hex.substring(180,195);
+        String hex14 = hex.substring(195,210);
+        String hex15 = hex.substring(210,225);
+        String hex16 = hex.substring(225,240);
+        String hex17 = hex.substring(240,255);
+        String hex18 = hex.substring(255,270);
+        String hex19 = hex.substring(270,285);
+        String hex20 = hex.substring(285);
+
+
+        hex = hex20 + hex19 + hex18 + hex17 + hex16 + hex15 + hex14
+                +hex13 + hex12 + hex11 + hex10 + hex9 + hex8 + hex7 + hex6
+                +hex5 + hex4 + hex3 + hex2 + hex1;
+
+
+
+
+
+        return hex;
+
+    }
+
     private void setExplored(String hex){
         String binary = "";
         String zeros = "";
 
-        hex = hex.substring(0,75);
+       // hex = hex.substring(0,75);
+
+
 
 
         for(int i = 0 ; i < hex.length() ; i++){
@@ -1422,9 +1466,16 @@ public class MainActivity extends AppCompatActivity {
             binary = binary + HexToBinary.HexToBinary(String.valueOf(c));
         }
 
-        Log.i("AndroidMDP" , "binary is " + binary);
-        Log.i("AndroidMDP" , "Length of binary is " + binary.length());
+        Log.i("AndroidMDP" , "binary setExplored is " + binary);
+        Log.i("AndroidMDP" , "Length of setExplored binary is " + binary.length());
 
+
+        binary = binary.substring(1);
+        binary = binary.substring(1);
+        binary = binary.substring(0,binary.length()-1);
+        binary = binary.substring(0,binary.length()-1);
+
+        binary = convertMDFFormat(binary);
 
         if(binary.length()<300){
 
@@ -1485,7 +1536,7 @@ public class MainActivity extends AppCompatActivity {
             char c = binary.charAt(i);
             if(c == '1'){
 
-                if(i != 14 && i != 13 && i != 12 && i != 29 && i != 29 && i != 27
+                if(i != 14 && i != 13 && i != 12 && i != 29 && i != 28 && i != 27
                         && i != 44 && i != 43 && i != 42 && i != 285 && i != 286 && i != 287
                         && i != 270 && i != 271 && i != 272 && i != 255 && i != 256 && i != 257
                         ) {
@@ -1651,6 +1702,7 @@ public class MainActivity extends AppCompatActivity {
             Log.i("AndroidMDP" , String.valueOf(w)  + " value onWindowFocus " + String.valueOf(h));
 
             setupMap();
+            setExplored(testString);
         }
         once = false;
 
