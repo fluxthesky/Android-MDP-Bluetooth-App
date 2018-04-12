@@ -44,6 +44,8 @@ import org.json.JSONObject;
 import java.io.UnsupportedEncodingException;
 import java.util.ArrayList;
 import java.util.Set;
+import java.util.Timer;
+import java.util.TimerTask;
 
 import static android.content.DialogInterface.*;
 
@@ -62,8 +64,14 @@ public class MainActivity extends AppCompatActivity {
     int data[][] = new int[20][15];
     ImageView grids[];
     android.support.v7.widget.GridLayout mapLayout;
-    int robotLocation = 168;
+    int robotLocation = 271;
     TextView curStatus;
+    TextView timerText;
+    int timerSecond = 0;
+    int timerMinute = 0;
+    Timer mTimer;
+
+
     int head = robotLocation - 15;
     int robotDirection = Constants.NORTH;
     int oldRobotLocation = -1;
@@ -73,7 +81,9 @@ public class MainActivity extends AppCompatActivity {
 
 
     String testString = "F8007000E00000000000000000000000000000000000000000000000000000000007000E001F";
+    boolean testStringOnce = true;
 
+    String fullyExplored = "FFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFF";
 
     boolean exploring = false;
 
@@ -134,6 +144,15 @@ public class MainActivity extends AppCompatActivity {
          left = (ImageButton) findViewById(R.id.left);
          right = (ImageButton) findViewById(R.id.right);
         mMap = (Map) findViewById(R.id.map);
+        timerText = (TextView) findViewById(R.id.timer);
+
+        timerText.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View v) {
+                stopTimer();
+            }
+        });
+
         mapLayout = (android.support.v7.widget.GridLayout) findViewById(R.id.map_grid);
         mDrawerLayout = (DrawerLayout) findViewById(R.id.drawer_layout);
         mNavigationView = (NavigationView) findViewById(R.id.nav_view);
@@ -197,11 +216,15 @@ public class MainActivity extends AppCompatActivity {
                         break;
 
                     case R.id.clear_map:
-                        setLocationDataHex(Constants.BLANK_MAP);
+
+
+                        clearMap();
                         break;
 
                     case R.id.fastest_path:
+
                         item.setChecked(false);
+                        startFastestPath();
                         break;
 
 
@@ -345,7 +368,7 @@ public class MainActivity extends AppCompatActivity {
 
 
                 }
-                if(autoUpdate) {
+                    if(autoUpdate) {
                     drawRobot();
                     setRobotStatus("moving forward");
                 }*/
@@ -606,13 +629,38 @@ public class MainActivity extends AppCompatActivity {
 
     }
 
+    public void drawStartingAndEnding(){
+        grids[2].setBackgroundColor(Color.GRAY);
+        grids[1].setBackgroundColor(Color.GRAY);
+        grids[0].setBackgroundColor(Color.GRAY);
+        grids[17].setBackgroundColor(Color.GRAY);
+        grids[16].setBackgroundColor(Color.GRAY);
+        grids[15].setBackgroundColor(Color.GRAY);
+        grids[32].setBackgroundColor(Color.GRAY);
+        grids[31].setBackgroundColor(Color.GRAY);
+        grids[30].setBackgroundColor(Color.GRAY);
+
+        grids[299].setBackgroundColor(Color.GRAY);
+        grids[298].setBackgroundColor(Color.GRAY);
+        grids[297].setBackgroundColor(Color.GRAY);
+        grids[284].setBackgroundColor(Color.GRAY);
+        grids[283].setBackgroundColor(Color.GRAY);
+        grids[282].setBackgroundColor(Color.GRAY);
+        grids[269].setBackgroundColor(Color.GRAY);
+        grids[268].setBackgroundColor(Color.GRAY);
+        grids[267].setBackgroundColor(Color.GRAY);
+    }
+
 
     public void drawMap(){
 
 
 
 
-        grids[14].setBackgroundColor(Color.GRAY);
+
+
+
+       /* grids[14].setBackgroundColor(Color.GRAY);
         grids[13].setBackgroundColor(Color.GRAY);
         grids[12].setBackgroundColor(Color.GRAY);
         grids[29].setBackgroundColor(Color.GRAY);
@@ -630,7 +678,33 @@ public class MainActivity extends AppCompatActivity {
         grids[272].setBackgroundColor(Color.GRAY);
         grids[255].setBackgroundColor(Color.GRAY);
         grids[256].setBackgroundColor(Color.GRAY);
-        grids[257].setBackgroundColor(Color.GRAY);
+        grids[257].setBackgroundColor(Color.GRAY);*/
+
+
+        grids[2].setBackgroundColor(Color.GRAY);
+        grids[1].setBackgroundColor(Color.GRAY);
+        grids[0].setBackgroundColor(Color.GRAY);
+        grids[17].setBackgroundColor(Color.GRAY);
+        grids[16].setBackgroundColor(Color.GRAY);
+        grids[15].setBackgroundColor(Color.GRAY);
+        grids[32].setBackgroundColor(Color.GRAY);
+        grids[31].setBackgroundColor(Color.GRAY);
+        grids[30].setBackgroundColor(Color.GRAY);
+
+        grids[299].setBackgroundColor(Color.GRAY);
+        grids[298].setBackgroundColor(Color.GRAY);
+        grids[297].setBackgroundColor(Color.GRAY);
+        grids[284].setBackgroundColor(Color.GRAY);
+        grids[283].setBackgroundColor(Color.GRAY);
+        grids[282].setBackgroundColor(Color.GRAY);
+        grids[269].setBackgroundColor(Color.GRAY);
+        grids[268].setBackgroundColor(Color.GRAY);
+        grids[267].setBackgroundColor(Color.GRAY);
+
+
+
+
+
 
         setLocationDataHex(mapMDF);
 
@@ -671,6 +745,28 @@ public class MainActivity extends AppCompatActivity {
     }
 
 
+    public void startFastestPath(){
+        {
+
+
+            if(service != null) {
+                service.write("#sfp".getBytes());
+                curStatus.setText("Fastest path");
+                exploring = true;
+                setupTimer();
+            }else{
+
+                Toast.makeText(this, "Start exploration failed!", Toast.LENGTH_SHORT).show();
+
+
+            }
+
+        }
+
+
+
+    }
+
 
     public void startExploration(){
 
@@ -679,12 +775,29 @@ public class MainActivity extends AppCompatActivity {
             service.write("#se".getBytes());
             curStatus.setText("Exploring");
             exploring = true;
+            setupTimer();
         }else{
 
             Toast.makeText(this, "Start exploration failed!", Toast.LENGTH_SHORT).show();
 
 
         }
+
+    }
+
+    public void clearMap(){
+
+        for(int i = 0 ; i < 300 ; i++){
+            grids[i].setBackgroundColor(Color.rgb(166,170,178));
+        }
+
+        MDF = new int[300];
+
+        robotLocation = 16;
+        oldRobotLocation = 16;
+
+drawStartingAndEnding();
+drawRobot();
 
     }
 
@@ -744,7 +857,7 @@ public class MainActivity extends AppCompatActivity {
 
                     waypoint = k;
                     grids[waypoint].setBackgroundColor(Color.YELLOW);
-                    String s = "#coordinate " + locationToCoordinate(waypoint);
+                    String s = "#wp:" + locationToCoordinate(waypoint);
                     Log.i("AndroidMDP" , s);
                     if(service != null)
                     service.write(s.getBytes());
@@ -810,7 +923,7 @@ public class MainActivity extends AppCompatActivity {
     }
 
 
-        grids[14].setBackgroundColor(Color.GRAY);
+      /*  grids[14].setBackgroundColor(Color.GRAY);
         grids[13].setBackgroundColor(Color.GRAY);
         grids[12].setBackgroundColor(Color.GRAY);
         grids[29].setBackgroundColor(Color.GRAY);
@@ -829,12 +942,35 @@ public class MainActivity extends AppCompatActivity {
         grids[255].setBackgroundColor(Color.GRAY);
         grids[256].setBackgroundColor(Color.GRAY);
         grids[257].setBackgroundColor(Color.GRAY);
+*/
+
+
+        grids[2].setBackgroundColor(Color.GRAY);
+        grids[1].setBackgroundColor(Color.GRAY);
+        grids[0].setBackgroundColor(Color.GRAY);
+        grids[17].setBackgroundColor(Color.GRAY);
+        grids[16].setBackgroundColor(Color.GRAY);
+        grids[15].setBackgroundColor(Color.GRAY);
+        grids[32].setBackgroundColor(Color.GRAY);
+        grids[31].setBackgroundColor(Color.GRAY);
+        grids[30].setBackgroundColor(Color.GRAY);
+
+        grids[299].setBackgroundColor(Color.GRAY);
+        grids[298].setBackgroundColor(Color.GRAY);
+        grids[297].setBackgroundColor(Color.GRAY);
+        grids[284].setBackgroundColor(Color.GRAY);
+        grids[283].setBackgroundColor(Color.GRAY);
+        grids[282].setBackgroundColor(Color.GRAY);
+        grids[269].setBackgroundColor(Color.GRAY);
+        grids[268].setBackgroundColor(Color.GRAY);
+        grids[267].setBackgroundColor(Color.GRAY);
+
 
         robotDirection = Constants.NORTH;
 
 
-        oldRobotLocation = 144;
-        robotLocation = 144;
+        oldRobotLocation = 16;
+        robotLocation = 16;
         drawRobot();
 
     }
@@ -852,8 +988,10 @@ public class MainActivity extends AppCompatActivity {
         Log.i("AndroidMDP" , String.valueOf(x) + " " + String.valueOf(y) + " " + String.valueOf(direction));
 
 
-        y = 19 - y;
+       // y = 19 - y;
         int location =  ( y * 15 ) + x;
+
+
 
         if(oldRobotLocation == -1){
 
@@ -907,10 +1045,10 @@ public class MainActivity extends AppCompatActivity {
     public String locationToCoordinate(int location){
         int x = location/15;
         int y = location%15;
-        x = 19 - x;
+        //x = 19 - x;
 
 
-        return  "(" + y + "," + x +  ")";
+        return  y + "," + x ;
     }
 
 
@@ -966,8 +1104,8 @@ public class MainActivity extends AppCompatActivity {
         if(setRobot){
 
             int oldCenter = oldRobotLocation;
-            int oldNorth = oldCenter - 15;
-            int oldSouth = oldCenter + 15;
+            int oldNorth = oldCenter + 15;
+            int oldSouth = oldCenter - 15;
             int oldEast = oldCenter + 1;
             int oldWest = oldCenter - 1;
             int oldNorthwest = oldNorth - 1;
@@ -996,7 +1134,7 @@ public class MainActivity extends AppCompatActivity {
 
 
 
-
+/*
 
     for (int i = 0; i < robotHistory.size(); i++) {
 
@@ -1032,17 +1170,44 @@ public class MainActivity extends AppCompatActivity {
     }
 
 
+else if (i == 0 || i == 1 || i == 2 || i == 15 || i == 16 || i == 17
+                        || i == 30 || i == 31 || i == 32 || i == 297 || i == 298 || i == 299
+                        || i == 282 || i == 283 || i == 284 || i == 267 || i == 268 || i == 269){
+                    grids[i].setBackgroundColor(Color.GRAY);
 
 
 
+*/
+
+
+        int oldCenter = oldRobotLocation;
+        int oldNorth = oldCenter + 15;
+        int oldSouth = oldCenter - 15;
+        int oldEast = oldCenter + 1;
+        int oldWest = oldCenter - 1;
+        int oldNorthwest = oldNorth - 1;
+        int oldNortheast = oldNorth + 1;
+        int oldSouthwest = oldSouth - 1;
+        int oldSoutheast = oldSouth + 1;
+
+        grids[oldCenter].setBackgroundColor(Color.WHITE);
+        grids[oldNorth].setBackgroundColor(Color.WHITE);
+        grids[oldSouth].setBackgroundColor(Color.WHITE);
+        grids[oldEast].setBackgroundColor(Color.WHITE);
+        grids[oldWest].setBackgroundColor(Color.WHITE);
+        grids[oldNorthwest].setBackgroundColor(Color.WHITE);
+        grids[oldNortheast].setBackgroundColor(Color.WHITE);
+        grids[oldSouthwest].setBackgroundColor(Color.WHITE);
+        grids[oldSoutheast].setBackgroundColor(Color.WHITE);
 
 
 
+        drawStartingAndEnding();
 
 
         int center = robotLocation;
-        int north = center - 15;
-        int south = center + 15;
+        int north = center + 15;
+        int south = center - 15;
         int east = center + 1;
         int west = center - 1;
         int northwest = north - 1;
@@ -1052,8 +1217,6 @@ public class MainActivity extends AppCompatActivity {
 
 
         if((center <= 299 && center >= 284) != true && (center <= 0 && center >= 14) != true) {
-
-            drawMap();
 
 
 
@@ -1073,7 +1236,7 @@ public class MainActivity extends AppCompatActivity {
             switch (robotDirection) {
 
                 case Constants.NORTH:
-                    grids[center - 15].setBackgroundColor(Color.BLUE);
+                    grids[center + 15].setBackgroundColor(Color.BLUE);
                /* if(oldRobotLocation != robotLocation){
 
                     grids[oldRobotLocation+14].setBackgroundColor(Color.RED);
@@ -1083,7 +1246,7 @@ public class MainActivity extends AppCompatActivity {
                 }*/
                     break;
                 case Constants.SOUTH:
-                    grids[center + 15].setBackgroundColor(Color.BLUE);
+                    grids[center - 15].setBackgroundColor(Color.BLUE);
                /* if(oldRobotLocation != robotLocation){
 
                     grids[oldRobotLocation-14].setBackgroundColor(Color.RED);
@@ -1436,6 +1599,29 @@ public class MainActivity extends AppCompatActivity {
         String hex18 = hex.substring(255,270);
         String hex19 = hex.substring(270,285);
         String hex20 = hex.substring(285);
+        Log.i("AndroidMDP" , "hex1 " + hex1);
+        Log.i("AndroidMDP" , "hex2 " + hex2);
+        Log.i("AndroidMDP" , "hex3 " + hex3);
+        Log.i("AndroidMDP" , "hex4 " + hex4);
+        Log.i("AndroidMDP" , "hex5 " + hex5);
+        Log.i("AndroidMDP" , "hex6 " + hex6);
+        Log.i("AndroidMDP" , "hex7 " + hex7);
+        Log.i("AndroidMDP" , "hex8 " + hex8);
+        Log.i("AndroidMDP" , "hex9 " + hex9);
+        Log.i("AndroidMDP" , "hex10 " + hex10);
+        Log.i("AndroidMDP" , "hex11 " + hex11);
+        Log.i("AndroidMDP" , "hex12 " + hex12);
+        Log.i("AndroidMDP" , "hex13 " + hex13);
+        Log.i("AndroidMDP" , "hex14" + hex14);
+        Log.i("AndroidMDP" , "hex15 " + hex15);
+        Log.i("AndroidMDP" , "hex16 " + hex16);
+        Log.i("AndroidMDP" , "hex17 " + hex17);
+        Log.i("AndroidMDP" , "hex18 " + hex18);
+        Log.i("AndroidMDP" , "hex19 " + hex19);
+        Log.i("AndroidMDP" , "hex20 " + hex20);
+
+
+
 
 
         hex = hex20 + hex19 + hex18 + hex17 + hex16 + hex15 + hex14
@@ -1470,14 +1656,14 @@ public class MainActivity extends AppCompatActivity {
         Log.i("AndroidMDP" , "Length of setExplored binary is " + binary.length());
 
 
-        binary = binary.substring(1);
-        binary = binary.substring(1);
-        binary = binary.substring(0,binary.length()-1);
-        binary = binary.substring(0,binary.length()-1);
+        if(binary.length()>300) {
+            binary = binary.substring(1);
+            binary = binary.substring(1);
+            binary = binary.substring(0, binary.length() - 1);
+            binary = binary.substring(0, binary.length() - 1);
+        }
 
-        binary = convertMDFFormat(binary);
-
-        if(binary.length()<300){
+      /*  if(binary.length()<300){
 
             int numOfPads = 300 - binary.length();
             zeros = "";
@@ -1488,9 +1674,10 @@ public class MainActivity extends AppCompatActivity {
 
             }
 
-        }
+        }*/
 
-        binary = zeros + binary;
+      //  binary = zeros + binary;
+       // binary = convertMDFFormat(binary);
 
 
 
@@ -1510,7 +1697,7 @@ public class MainActivity extends AppCompatActivity {
         //unexplored portions
 
 
-        for(int i = 0 ; i <MDF.length; i++){
+     /*   for(int i = 0 ; i <MDF.length; i++){
 
             if(MDF[i] == 1){
 
@@ -1525,7 +1712,7 @@ public class MainActivity extends AppCompatActivity {
 
             }
 
-        }
+        }*/
 
 
         //set explored
@@ -1536,17 +1723,34 @@ public class MainActivity extends AppCompatActivity {
             char c = binary.charAt(i);
             if(c == '1'){
 
-                if(i != 14 && i != 13 && i != 12 && i != 29 && i != 28 && i != 27
+
+
+               /* if(i != 14 && i != 13 && i != 12 && i != 29 && i != 28 && i != 27
                         && i != 44 && i != 43 && i != 42 && i != 285 && i != 286 && i != 287
                         && i != 270 && i != 271 && i != 272 && i != 255 && i != 256 && i != 257
-                        ) {
+                        )*/
+
                    // setLocationData(i);
-                    MDF[i] = 1;
+                if(MDF[i] == 0){
+                    MDF[i] = 1;}
+                if(i != 0 && i != 1 && i != 2 && i != 15 && i != 16 && i != 17
+                        && i != 30 && i != 31 && i != 32 && i != 297 && i != 298 && i != 299
+                        && i != 282 && i != 283 && i != 284 && i != 267 && i != 268 && i != 269
+                        ) {
 
-
-
-                    grids[i].setBackgroundColor(Color.WHITE);
+                    if(MDF[i] == 1) {
+                        grids[i].setBackgroundColor(Color.WHITE);
+                    }
                 }
+
+
+
+               /* else if (i == 0 || i == 1 || i == 2 || i == 15 || i == 16 || i == 17
+                        || i == 30 || i == 31 || i == 32 || i == 297 || i == 298 || i == 299
+                        || i == 282 || i == 283 || i == 284 || i == 267 || i == 268 || i == 269){
+                    grids[i].setBackgroundColor(Color.GRAY);
+
+                }*/
             }
 
             else{
@@ -1569,12 +1773,15 @@ public class MainActivity extends AppCompatActivity {
 
         //for obstacles
 
+        mapMDF = hex;
 
         String zeros = "";
-        if(hex.length()>75) {
+      /*  if(hex.length()>75) {
             hex = hex.substring(0, 75);
-        }
+        }*/
         String binary = "";
+
+
 
         for(int i = 0 ; i < hex.length() ; i++){
             char c = hex.charAt(i);
@@ -1586,6 +1793,23 @@ public class MainActivity extends AppCompatActivity {
         Log.i("AndroidMDP" , "binary is " + binary);
         Log.i("AndroidMDP" , "Length of binary is " + binary.length());
 
+
+      //  binary = binary.substring(1);
+       // binary = binary.substring(1);
+
+        if(binary.length() > 300) {
+            binary = binary.substring(0, binary.length() - 1);
+            binary = binary.substring(0, binary.length() - 1);
+            binary = binary.substring(0, binary.length() - 1);
+            binary = binary.substring(0, binary.length() - 1);
+
+        }
+        Log.i("AndroidMDP" , "binary after conversation is " + binary);
+        Log.i("AndroidMDP" , "Length of binary after conversation is " + binary.length());
+
+
+
+
      /*   int n = 512 - binary.length();
         for(int i = 0 ; i < n ; i++){
             binary = "0" + binary;
@@ -1594,7 +1818,7 @@ public class MainActivity extends AppCompatActivity {
         binary = binary.substring(211,binary.length()-1);*/
 
 
-
+/*
         if(binary.length()<300){
 
             int numOfPads = 300 - binary.length();
@@ -1607,22 +1831,47 @@ public class MainActivity extends AppCompatActivity {
             }
 
         }
+*/
+      //  binary = binary + zeros;
 
-        binary = zeros + binary;
+        //binary = convertMDFFormat(binary);
 
 
-        for(int i = 0 ; i <MDF.length; i++){
 
-            if(MDF[i] == 1){
 
+        Log.i("AndroidMDP" , "binary after convertMDFFormat is " + binary);
+        Log.i("AndroidMDP" , "Length of binary after coconvertMDFFormatnversation is " + binary.length());
+
+
+        int p = 0;
+
+        for(int i = 0  ; i <MDF.length; i++){
+
+            if(MDF[i] > 0){
+
+               /* if(i != 0 && i != 1 && i != 2 && i != 15 && i != 16 && i != 17
+                        && i != 30 && i != 31 && i != 32 && i != 297 && i != 298 && i != 299
+                        && i != 282 && i != 283 && i != 284 && i != 267 && i != 268 && i != 269
+                        ){
                 grids[i].setBackgroundColor(Color.WHITE);
+                }*/
+                if(p<binary.length()) {
+                    char c = binary.charAt(p);
+                    if (c == '1') {
+
+                        grids[i].setBackgroundColor(Color.BLACK);
+                        MDF[i] = 2;
+                    } else {
+
+                    }
+                }
+                p++;
             }
 
         }
 
-
-
-
+        //   12/4/2018 commented
+/*
         for (int i = 0 ; i < binary.length() ; i++){
             char c = binary.charAt(i);
             if(c == '1'){
@@ -1638,6 +1887,8 @@ public class MainActivity extends AppCompatActivity {
 
             }
         }
+*/
+
 
         updateMap(data);
 //        setupMap();
@@ -1702,7 +1953,9 @@ public class MainActivity extends AppCompatActivity {
             Log.i("AndroidMDP" , String.valueOf(w)  + " value onWindowFocus " + String.valueOf(h));
 
             setupMap();
-            setExplored(testString);
+            //setExplored(fullyExplored);
+          // setLocationDataHex("00000000000700820004020F000208A41E000004604040808000000000000010002000400080");
+          //  setLocationDataHex("0000000700C0100B80106A0E000004408081010000000000000020004000800100");
         }
         once = false;
 
@@ -1813,7 +2066,13 @@ public class MainActivity extends AppCompatActivity {
                             mapMDF = s;
 
                             if(autoUpdate) {
-                                setExplored(s);
+                                if(testStringOnce){
+                                    setExplored(testString);
+                                    testStringOnce = false;
+                                }else {
+                                    setExplored(s);
+                                }
+                                drawRobot();
                             }
                         }
 
@@ -1834,6 +2093,7 @@ public class MainActivity extends AppCompatActivity {
 
                                 if(autoUpdate) {
                                     setLocationDataHex(s);
+                                    drawRobot();
                                 }
                             }
 
@@ -1939,4 +2199,52 @@ public class MainActivity extends AppCompatActivity {
         String mSavedString = mSharedPreferences.getString("mString","Old String");
         return mSavedString;
     }
+
+
+
+
+    private void stopTimer(){
+        if(mTimer != null) {
+            mTimer.cancel();
+            timerSecond = 0;
+            timerMinute = 0;
+        }
+    }
+
+    private void setupTimer(){
+
+
+
+
+        TimerTask tt = new TimerTask() {
+            @Override
+            public void run() {
+
+                timerSecond++;
+                if(timerSecond == 60){
+                    timerMinute++;
+                    timerSecond = 0;
+                }
+
+                runOnUiThread(new Runnable() {
+                    @Override
+                    public void run() {
+                        timerText.setText(timerMinute + "m" + timerSecond + "s");
+
+                    }
+                });
+
+            }
+        };
+
+        mTimer = new Timer();
+        mTimer.scheduleAtFixedRate(tt,0,1000);
+
+
+
+
+    }
+
+
+
 }

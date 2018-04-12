@@ -93,6 +93,8 @@
             android:layout_weight="1"
             android:layout_centerInParent="true"
 
+            android:rotationX="180"
+
             android:visibility="visible"
             android:layout_centerVertical="true"
             app:useDefaultMargins="true"
@@ -238,6 +240,14 @@
             android:layout_alignParentEnd="true"
             android:text="Start Exploration"
             android:visibility="invisible"/>
+
+        <TextView
+            android:id="@+id/timer"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:layout_alignBottom="@+id/textView4"
+            android:layout_alignParentStart="true"
+            android:text="TextView" />
 
 
     </RelativeLayout>

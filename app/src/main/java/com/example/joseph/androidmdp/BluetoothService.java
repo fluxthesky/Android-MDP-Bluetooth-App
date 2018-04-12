@@ -29,6 +29,8 @@ public class BluetoothService {
 
 
     private UUID MY_UUID  = UUID.fromString("000001101-0000-1000-8000-00805F9B34FB");
+
+
    // private UUID MY_UUID  = UUID.fromString("00001112-0000-1000-8000-00805F9B34FB");
 
     Context context;
@@ -48,8 +50,6 @@ public class BluetoothService {
         this.handler = handler;
         this.mBluetoothAdapter = adapter;
         this.deviceAddress = deviceAddress;
-
-
 
         connectThread = new BluetoothServiceForConnect();
         listenThread = new BluetoothServiceForListen();

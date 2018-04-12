@@ -9,10 +9,10 @@ public class Constants {
     public static final int ACTIVITY_RESULTS = 52;
     public static final String DEVICE_ADDRESS = "device_address";
     public static final String SEND_TRANSMISSION = "send";
-    public static final String ACTION_FORWARD = "#f";
-    public static final String ACTION_ROATE_LEFT = "#l";
-    public static final String ACTION_ROATE_RIGHT = "#r";
-    public static final String ACTION_REVERSE = "#b";
+    public static final String ACTION_FORWARD = "f";
+    public static final String ACTION_ROATE_LEFT = "l";
+    public static final String ACTION_ROATE_RIGHT = "r";
+    public static final String ACTION_REVERSE = "b";
     public static final String HARDWARE_ADDRESS = "B8:27:EB:CD:16:89";
     public static final int NORTH = 1;
     public static final int SOUTH = 2;
