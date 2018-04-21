@@ -121,7 +121,7 @@ public class MainActivity extends AppCompatActivity {
 
 
     String mapMDF = Constants.BLANK_MAP , currentStatus;
-
+    String mapMDFForObstacles  = Constants.BLANK_MAP;
 
 
 
@@ -616,9 +616,11 @@ public class MainActivity extends AppCompatActivity {
         manualUpBtn.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
-                drawRobot();
 
-                setLocationDataHex(mapMDF);
+
+                setExplored(mapMDF);
+                setLocationDataHex(mapMDFForObstacles);
+                drawRobot();
                 setRobotStatus(currentStatus);
              }
         });
@@ -753,6 +755,8 @@ public class MainActivity extends AppCompatActivity {
                 service.write("#sfp".getBytes());
                 curStatus.setText("Fastest path");
                 exploring = true;
+
+                stopTimer();
                 setupTimer();
             }else{
 
@@ -807,7 +811,9 @@ drawRobot();
 
         for(int i = 0 ; i < 300 ; i++){
 
-        final ImageView btn = new ImageView(this);
+            final ImageView btn = new ImageView(this);
+
+
 
         final int k = i;
         btn.setOnClickListener(new View.OnClickListener() {
@@ -993,7 +999,8 @@ drawRobot();
 
 
 
-        if(oldRobotLocation == -1){
+
+            if(oldRobotLocation == -1){
 
             robotLocation = location;
             oldRobotLocation = robotLocation;
@@ -1048,7 +1055,7 @@ drawRobot();
         //x = 19 - x;
 
 
-        return  y + "," + x ;
+        return  x + "," + y ;
     }
 
 
@@ -1731,16 +1738,19 @@ else if (i == 0 || i == 1 || i == 2 || i == 15 || i == 16 || i == 17
                         )*/
 
                    // setLocationData(i);
-                if(MDF[i] == 0){
-                    MDF[i] = 1;}
+
+                if(MDF[i] != 2)
+                MDF[i] = 1;
+
+                if(MDF[i] == 1)
                 if(i != 0 && i != 1 && i != 2 && i != 15 && i != 16 && i != 17
                         && i != 30 && i != 31 && i != 32 && i != 297 && i != 298 && i != 299
                         && i != 282 && i != 283 && i != 284 && i != 267 && i != 268 && i != 269
                         ) {
 
-                    if(MDF[i] == 1) {
+
                         grids[i].setBackgroundColor(Color.WHITE);
-                    }
+
                 }
 
 
@@ -1761,6 +1771,8 @@ else if (i == 0 || i == 1 || i == 2 || i == 15 || i == 16 || i == 17
             }
         }
 
+        //setLocationDataHex(mapMDFForObstacles);
+
         updateMap(data);
 //        setupMap();
         //      drawRobot();
@@ -1773,7 +1785,7 @@ else if (i == 0 || i == 1 || i == 2 || i == 15 || i == 16 || i == 17
 
         //for obstacles
 
-        mapMDF = hex;
+       // mapMDF = hex;
 
         String zeros = "";
       /*  if(hex.length()>75) {
@@ -1858,10 +1870,13 @@ else if (i == 0 || i == 1 || i == 2 || i == 15 || i == 16 || i == 17
                 if(p<binary.length()) {
                     char c = binary.charAt(p);
                     if (c == '1') {
-
-                        grids[i].setBackgroundColor(Color.BLACK);
                         MDF[i] = 2;
+                        grids[i].setBackgroundColor(Color.BLACK);
+
                     } else {
+
+                        MDF[i] = 1;
+
 
                     }
                 }
@@ -2001,14 +2016,21 @@ else if (i == 0 || i == 1 || i == 2 || i == 15 || i == 16 || i == 17
                     } catch (UnsupportedEncodingException e) {
                         e.printStackTrace();
                     }
+
+
+
+
                     messageTextView.append(ss);
-                    Log.i("AndroidMDP" ,ss);
                     icd.setMessage(ss);
 
-                    String s = new String(bytes);
+                    String s = null;
+                    s = new String(bytes);
+
+                   // Log.i("androidmdp" , s);
+
                     if(s.startsWith("#update:")){
 
-                        s = s.substring(s.indexOf(":")+1, s.length());
+                        s = s.substring(s.indexOf(":")+1, s.length()-1);
                         Log.i("AndroidMDP" , s);
 
                         while(true) {
@@ -2061,47 +2083,73 @@ else if (i == 0 || i == 1 || i == 2 || i == 15 || i == 16 || i == 17
 
 
 
-                            s = s.substring(s.indexOf(":")+1, s.length());
-                            s = s.substring(0 , s.indexOf("/") );
-                            mapMDF = s;
+                            s = s.substring(s.indexOf(":")+1, s.length()-1);
+                            if(s.contains("/") == true) {
 
-                            if(autoUpdate) {
-                                if(testStringOnce){
-                                    setExplored(testString);
-                                    testStringOnce = false;
-                                }else {
-                                    setExplored(s);
+                                Log.i("androidMDP" , "Contains slash at setexplored");
+
+                                s = s.substring(0, s.indexOf("/"));
+
+                                mapMDF = s;
+
+                                if (autoUpdate) {
+                                    if (testStringOnce) {
+                                        setExplored(testString);
+                                        testStringOnce = false;
+                                    } else {
+                                        setExplored(s);
+                                    }
+                                    drawRobot();
                                 }
+                            }
+                            else{
+
+                                Log.i("androidMDP" , "no slash at setexplored");
+
+
+                                setExplored(mapMDF);
                                 drawRobot();
                             }
+
+
                         }
 
 
                     }
 
 
-                    if(s.startsWith("#mdf2:")){
+                    if(s.startsWith("#mdf2:")) {
 
 
                         {
 
+                            Log.i("androidMDP" , "Contains slash at setlocationdatahex");
+
+                            s = s.substring(s.indexOf(":") + 1, s.length()-1);
+
+                            if (s.contains("/") == true){
+                                s = s.substring(0, s.indexOf("/"));
+                            mapMDFForObstacles = s;
 
 
-                       s = s.substring(s.indexOf(":")+1, s.length());
-                        s = s.substring(0 , s.indexOf("/") );
-                                mapMDF = s;
-
-                                if(autoUpdate) {
-                                    setLocationDataHex(s);
-                                    drawRobot();
-                                }
+                            if (autoUpdate) {
+                                setLocationDataHex(s);
+                                drawRobot();
                             }
+                        }
+                        else{
 
+                                Log.i("androidMDP" , "no slash at setexplored");
+
+                                setLocationDataHex(mapMDFForObstacles);
+                                drawRobot();
+                            }
+                    }
 
                         }
 
                     if(s.startsWith("#status:")){
-                        s = s.substring(s.indexOf(":")+1, s.length());
+                        s = s.substring(s.indexOf(":")+1, s.length()-1);
                         s = s.substring(0, s.indexOf("/"));
                         s = s.toLowerCase();
                         currentStatus = s;
